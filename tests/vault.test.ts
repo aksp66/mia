@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { parseCalendarDate as D } from '../src/domain/calendarDate';
 import { MiaDB } from '../src/data/db';
 import { PeriodRepository } from '../src/data/repositories';
-import { AUTO_LOCK_MS, Vault } from '../src/data/vault';
+import { AUTO_LOCK_MS, Vault, lockoutDelay } from '../src/data/vault';
 
 let d: MiaDB;
 let v: Vault;
@@ -89,5 +89,27 @@ describe('verrouillage (T15)', () => {
       vi.useRealTimers();
     }
     await vi.waitFor(() => expect(v.getStatus()).toBe('locked'));
+  });
+
+  it('bloque après 5 échecs, même avec le bon code, puis réautorise', async () => {
+    await v.enable('1234');
+    await v.lock();
+    for (let i = 0; i < 4; i++) expect(await v.unlock('0000')).toEqual({ ok: false, error: 'wrongPin' });
+    expect(await v.lockoutRemaining()).toBe(0);
+    await v.unlock('0000'); // 5e échec : blocage
+    expect(await v.lockoutRemaining()).toBeGreaterThan(0);
+    const r = await v.unlock('1234');
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error).toMatch(/^tooMany:/);
+    await d.meta.put({ key: 'attempts', value: { failures: 5, lockedUntil: Date.now() - 1 } });
+    expect((await v.unlock('1234')).ok).toBe(true);
+    expect(await d.meta.get('attempts')).toBeUndefined();
+  });
+
+  it('délai croissant et plafonné', () => {
+    expect(lockoutDelay(4)).toBe(0);
+    expect(lockoutDelay(5)).toBe(30_000);
+    expect(lockoutDelay(6)).toBe(60_000);
+    expect(lockoutDelay(50)).toBe(3_600_000);
   });
 });

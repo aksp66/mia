@@ -12,7 +12,7 @@ Version 1 en cours de développement. Le suivi détaillé est dans [tasks.md](ta
 
 Fonctionnalités disponibles : accueil initial, Accueil, Calendrier, Journal, Historique, Apprendre, Profil, export JSON/CSV, import (fusion ou remplacement), suppression totale, rappels (message dans l'application et fichier `.ics`), mode discret, verrouillage par code PIN avec chiffrement local.
 
-Les articles éducatifs sont des **brouillons** : ils ne doivent pas être publiés sans relecture par une personne compétente en santé.
+Les articles éducatifs (15 articles, 7 thèmes) sont rédigés pour MIA à partir d'informations de santé publique, avec leurs sources. Ils sont affichés « en attente de relecture » : ils doivent être relus et signés par une personne compétente en santé avant une diffusion publique.
 
 ## Prérequis
 
@@ -26,9 +26,20 @@ npm install
 npm run dev        # serveur de développement
 npm test           # tests automatisés
 npm run test:cov   # tests avec couverture du domaine (seuil : 95 %)
+npm run lint       # ESLint
+npm run icons      # régénère les icônes PNG depuis les SVG
 npm run build      # vérification des types + build de production (dossier dist/)
 npm run preview    # prévisualiser le build
 ```
+
+## Mise en ligne (GitHub Pages)
+
+1. Sur GitHub : Settings → Pages → Source : **GitHub Actions**.
+2. Fusionner `develop` dans `main` (pull request) : le workflow `.github/workflows/deploy.yml` teste, construit et publie.
+3. L'application est servie sur `https://aksp66.github.io/mia/` (HTTPS). Ouvrir ce lien sur le téléphone avec Chrome, puis menu ⋮ → **Installer l'application** (ou « Ajouter à l'écran d'accueil »).
+
+Autres hébergeurs statiques (Netlify, Cloudflare Pages) : `npm run build`, publier `dist/`. Pour un sous-chemin, définir `BASE_PATH` (ex. `BASE_PATH=/mia/`) ; à la racine d'un domaine, ne rien définir.
+Test sur téléphone en local : `npm run dev -- --host`, puis ouvrir l'adresse du réseau local (le service worker n'est actif qu'en HTTPS ou sur localhost).
 
 ## Stack
 
@@ -59,7 +70,7 @@ Les seuils de calcul (durées plausibles, nombre de cycles minimal, écarts) son
 
 ## Verrouillage par PIN : limites
 
-Un code de 4 à 6 chiffres protège contre un accès occasionnel au téléphone, pas contre une personne déterminée disposant d'outils techniques. Un code oublié rend les données irrécupérables sauf export préalable. Les données sont en clair pendant une session ouverte, et le nombre d'essais n'est pas limité.
+Un code de 4 à 6 chiffres protège contre un accès occasionnel au téléphone, pas contre une personne déterminée disposant d'outils techniques. Un code oublié rend les données irrécupérables sauf export préalable. Les essais sont limités (blocage dès le 5e échec : 30 s, doublé à chaque échec, plafonné à 1 h). Limite restante : les données sont en clair pendant une session ouverte ; si l'application est tuée, elles y restent jusqu'au prochain verrouillage.
 
 ## Stockage local
 

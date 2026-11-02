@@ -7,7 +7,7 @@ import { Button, Sheet } from '../../ui/components';
 import { fmtLong, useDayLogs, usePeriods } from '../../app/hooks';
 import { addDays, fromParts, today, type CalendarDate } from '../../domain/calendarDate';
 import { estimatedDays, predict } from '../../domain/prediction';
-import { periodLength } from '../../domain/cycle';
+import { averagePeriodLength, periodLength } from '../../domain/cycle';
 
 const DOW = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
 
@@ -29,7 +29,10 @@ export default function Calendar() {
     }
     return s;
   }, [periods]);
-  const estimated = useMemo(() => new Set(estimatedDays(predict(periods ?? []))), [periods]);
+  const estimated = useMemo(
+    () => new Set(estimatedDays(predict(periods ?? []), averagePeriodLength(periods ?? []))),
+    [periods],
+  );
   const symptomDays = useMemo(() => new Set((logs ?? []).filter((l) => l.symptoms.length).map((l) => l.date)), [logs]);
 
   const first = fromParts(ym.y, ym.m, 1);
