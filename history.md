@@ -25,3 +25,4 @@ Journal chronologique des actions menées sur le projet.
 19. `git init -b main` + `.gitignore` (node_modules, dist, coverage, tsbuildinfo). Aucun commit.
 20. Premier commit sur `main` (base initiale), puis création de la branche `develop` (réception des mises à jour de code et de tests ; `main` ne reçoit que par pull request depuis `develop`).
 21. Ajout de `.prettierignore` : Prettier est désactivé sur l'ensemble du code.
+22. Ajout de `README.md` (présentation, démarrage, structure, limites, workflow Git).
