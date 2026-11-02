@@ -58,13 +58,23 @@ export function summarize(periods: readonly PeriodInput[], today: CalendarDate):
   };
 }
 
-/** Jours estimés à marquer sur le calendrier (date ou plage de début). */
-export function estimatedDays(p: PredictionState): CalendarDate[] {
-  if (p.kind === 'Estimation') return [p.date];
-  if (p.kind === 'Plage') {
-    const out: CalendarDate[] = [];
-    for (let d = p.from; d <= p.to; d = addDays(d, 1)) out.push(d);
-    return out;
+/**
+ * Jours estimés à marquer sur le calendrier : la date ou la plage de début. La durée moyenne des règles
+ * (`periodLen`, fournie seulement si au moins 3 dates de fin sont renseignées) prolonge la dernière date.
+ */
+export function estimatedDays(p: PredictionState, periodLen: number | null = null): CalendarDate[] {
+  const extra = periodLen && periodLen > 1 ? periodLen - 1 : 0;
+  let from: CalendarDate;
+  let to: CalendarDate;
+  if (p.kind === 'Estimation') {
+    from = to = p.date;
+  } else if (p.kind === 'Plage') {
+    from = p.from;
+    to = p.to;
+  } else {
+    return [];
   }
-  return [];
+  const out: CalendarDate[] = [];
+  for (let d = from; d <= addDays(to, extra); d = addDays(d, 1)) out.push(d);
+  return out;
 }

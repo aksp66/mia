@@ -15,21 +15,23 @@ Référence : Cahier des charges MIA v2.0 (02/11/2026). Dernière mise à jour :
 - [x] CSP stricte, aucune ressource distante, thème sombre par variables CSS
 - [x] Verrouillage par PIN 4-6 chiffres, chiffrement PBKDF2 310 000 it. / AES-GCM, verrou auto après 2 min (T15, tests automatisés ; à valider sur appareil)
 - [x] Dépôt git initialisé (branche main, .gitignore) — aucun commit pour l'instant
+- [x] Durée moyenne des règles dans les jours estimés du calendrier
+- [x] Migration de schéma testée (T22)
+- [x] Police Inter auto-hébergée (4 graisses WOFF2), icônes PNG générées (`npm run icons`)
+- [x] ESLint + workflows GitHub Actions : CI (lint, tests, build, audit) et déploiement GitHub Pages
+- [x] 15 articles structurés avec sources (en attente de relecture)
+- [x] PIN : blocage progressif après 5 échecs
 - [x] Build de production OK (JS initial ≈ 149 Ko gzip, < 200 Ko)
 
 ## À faire
 
 ### Fonctionnel
-- [ ] Durée moyenne des règles dans les jours estimés du calendrier (si ≥ 3 dates de fin)
-- [ ] Contenus éducatifs complets (thèmes de la section 17) et relecture par un référent santé
-- [ ] Migrations de schéma Dexie testées (T22)
+- [ ] Relecture et signature des 15 articles par un référent santé (renseigner `reviewer` dans `src/content/articles.ts`)
 
 ### Écarts au cahier des charges
-- [ ] Auto-héberger la police Inter (WOFF2 latin, ≈ 40 Ko)
 - [ ] Passer les styles en CSS Modules (actuellement une feuille globale `src/ui/styles.css`)
-- [ ] Décider : routage `#` (actuel) ou routes classiques avec repli serveur
-- [ ] Icônes PNG (192, 512, maskable) pour l'installation sur certains téléphones
-- [ ] Mettre en place ESLint, Prettier, Husky et GitHub Actions
+- [ ] Décider : routage `#` (actuel, compatible GitHub Pages) ou routes classiques avec repli serveur
+- [ ] Husky (hooks de commit). Prettier volontairement désactivé (`.prettierignore`)
 
 ### Qualité et recette
 - [ ] Tests de bout en bout Playwright, dont hors ligne et inspection du trafic réseau (T10)
@@ -46,6 +48,7 @@ Référence : Cahier des charges MIA v2.0 (02/11/2026). Dernière mise à jour :
 - [ ] Maquettes graphiques détaillées (Figma ou équivalent)
 
 ## Points d'attention
-- PIN : limites connues — données en clair pendant une session ouverte (si l'appli est tuée, elles y restent jusqu'au prochain verrouillage) ; pas de limitation du nombre d'essais ; réglages non sensibles en clair.
+- PIN : limite restante — données en clair pendant une session ouverte (si l'appli est tuée, elles y restent jusqu'au prochain verrouillage). Correction complète = chiffrement permanent avec jeu de travail en mémoire (réécriture de la couche données). Réglages non sensibles en clair.
+- Publicités : refusées (pubs non visibles = fraude publicitaire ; contraire au cahier des charges : aucun traceur tiers, CSP stricte).
 - Les articles de `src/content/articles.ts` sont des brouillons : ne pas publier sans relecture signée.
 - Le rendu n'a pas encore été vérifié dans un navigateur.

@@ -13,6 +13,18 @@ import { attempt, type Result } from './result';
 export const PBKDF2_ITERATIONS = 310_000;
 export const AUTO_LOCK_MS = 2 * 60 * 1000;
 export const PIN_PATTERN = /^\d{4,6}$/;
+/** Essais gratuits avant blocage ; ensuite 30 s doublées à chaque échec, plafonnées à 1 h. */
+export const FREE_ATTEMPTS = 5;
+export const BASE_DELAY_MS = 30_000;
+export const MAX_DELAY_MS = 3_600_000;
+
+export const lockoutDelay = (failures: number) =>
+  failures < FREE_ATTEMPTS ? 0 : Math.min(BASE_DELAY_MS * 2 ** (failures - FREE_ATTEMPTS), MAX_DELAY_MS);
+
+interface Attempts {
+  failures: number;
+  lockedUntil: number;
+}
 
 interface Blob64 {
   iv: string;
@@ -125,8 +137,16 @@ export class Vault {
     });
   }
 
+  /** Millisecondes restantes avant un nouvel essai (0 si aucun blocage). */
+  async lockoutRemaining(): Promise<number> {
+    const a = (await this.d.meta.get('attempts'))?.value as Attempts | undefined;
+    return a ? Math.max(0, a.lockedUntil - Date.now()) : 0;
+  }
+
   unlock(pin: string): Promise<Result<void>> {
     return attempt(async () => {
+      const wait = await this.lockoutRemaining();
+      if (wait > 0) throw new Error(`tooMany:${wait}`);
       const meta = (await this.d.meta.get('encryption'))?.value as { salt: string; iterations: number } | undefined;
       const blob = (await this.d.meta.get('vault'))?.value as Blob64 | undefined;
       if (!meta || !blob) throw new Error('noVault');
@@ -135,8 +155,12 @@ export class Vault {
       try {
         snap = await this.open(key, blob);
       } catch {
+        const prev = ((await this.d.meta.get('attempts'))?.value as Attempts | undefined)?.failures ?? 0;
+        const failures = prev + 1;
+        await this.d.meta.put({ key: 'attempts', value: { failures, lockedUntil: Date.now() + lockoutDelay(failures) } });
         throw new Error('wrongPin');
       }
+      await this.d.meta.delete('attempts');
       const sessionOpen = (await this.d.meta.get('session'))?.value === 'open';
       // Session précédemment interrompue : les données en clair sont plus récentes que le coffre.
       if (!sessionOpen) {
@@ -158,7 +182,7 @@ export class Vault {
     return attempt(async () => {
       if (this.status !== 'unlocked') throw new Error('locked');
       await this.d.transaction('rw', this.d.meta, this.d.settings, async () => {
-        await this.d.meta.bulkDelete(['encryption', 'vault', 'session']);
+        await this.d.meta.bulkDelete(['encryption', 'vault', 'session', 'attempts']);
         await this.d.settings.put({ key: 'lockEnabled', value: false });
       });
       this.key = null;

@@ -105,6 +105,8 @@ describe('prédiction (T01, T03, T05, T18)', () => {
     expect(estimatedDays(predict(p))).toHaveLength(1);
     expect(estimatedDays({ kind: 'Plage', from: D('2026-01-01'), to: D('2026-01-03'), average: 2 })).toHaveLength(3);
     expect(estimatedDays({ kind: 'Incertain' })).toEqual([]);
+    expect(estimatedDays({ kind: 'Estimation', date: D('2026-01-10'), average: 28 }, 5)).toHaveLength(5);
+    expect(estimatedDays({ kind: 'Plage', from: D('2026-01-01'), to: D('2026-01-03'), average: 2 }, 4)).toHaveLength(6);
   });
   it('jour du cycle limité à 1-90', () => {
     expect(cycleDay(D('2026-01-01'), D('2026-01-01'))).toBe(1);

@@ -122,6 +122,8 @@ export const fr = {
     revised: 'Révisé le {{date}}',
     seeDoctor: 'Consultez un professionnel de santé si…',
     notFound: 'Article introuvable.',
+    sources: 'Pour aller plus loin',
+    sourcesNote: 'Texte rédigé pour MIA à partir d\'informations de santé publique. Sources en anglais :',
   },
   profile: {
     title: 'Profil et paramètres',
@@ -169,6 +171,7 @@ export const fr = {
     pin: 'Code PIN',
     unlock: 'Déverrouiller',
     wrong: 'Code incorrect. Réessayez.',
+    wait: 'Trop d\'essais. Patientez {{n}} s avant de réessayer.',
     forgot: 'Code oublié : les données chiffrées sont irrécupérables, sauf si vous avez exporté un fichier au préalable.',
   },
   security: {

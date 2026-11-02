@@ -26,3 +26,9 @@ Journal chronologique des actions menées sur le projet.
 20. Premier commit sur `main` (base initiale), puis création de la branche `develop` (réception des mises à jour de code et de tests ; `main` ne reçoit que par pull request depuis `develop`).
 21. Ajout de `.prettierignore` : Prettier est désactivé sur l'ensemble du code.
 22. Ajout de `README.md` (présentation, démarrage, structure, limites, workflow Git).
+23. Polices Inter WOFF2 auto-hébergées, icônes PNG (sharp), manifeste relatif, `BASE_PATH` pour l'hébergement en sous-chemin.
+24. PIN : blocage progressif (5 essais, puis 30 s doublées, plafond 1 h) + 2 tests ; écran de verrouillage avec compte à rebours.
+25. Articles : réécriture complète, 15 articles / 7 thèmes, sources NHS, texte original (non copié), affichés « en attente de relecture ».
+26. Calendrier : prolongation par la durée moyenne des règles (≥ 3 dates de fin) ; test de migration T22.
+27. ESLint (TypeScript passé en 6.0 : typescript-eslint ne gère pas TS 7), workflows CI et déploiement Pages. 39 tests, lint propre, build OK.
+28. Demande de publicités invisibles refusée (fraude publicitaire, contraire au cahier des charges).
