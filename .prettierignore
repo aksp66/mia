@@ -1,0 +1,3 @@
+# Désactive Prettier sur tout le code : aucun fichier n'est reformaté automatiquement.
+*
+!.prettierignore
