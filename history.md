@@ -23,3 +23,5 @@ Journal chronologique des actions menées sur le projet.
 17. Test aléatoire instable du domaine (fast-check générait une date invalide) : corrigé avec `noInvalidDate`.
 18. Erreur d'apostrophes non échappées dans `fr.ts` corrigée ; 36 tests passent, build OK.
 19. `git init -b main` + `.gitignore` (node_modules, dist, coverage, tsbuildinfo). Aucun commit.
+20. Premier commit sur `main` (base initiale), puis création de la branche `develop` (réception des mises à jour de code et de tests ; `main` ne reçoit que par pull request depuis `develop`).
+21. Ajout de `.prettierignore` : Prettier est désactivé sur l'ensemble du code.
