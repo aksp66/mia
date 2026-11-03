@@ -43,3 +43,5 @@ Journal chronologique des actions menées sur le projet.
 37. Rédaction de l'avenant `docs/cahier-des-charges-v2.1.md` : ajouts, propositions écartées (dont publicités), choix techniques, sécurité, contenus, tests T23 à T29, risques, validations.
 38. Hébergement : dépôt passé en public par le porteur, GitHub Pages activé (workflow), PR #4 fusionnée, déploiement réussi ; site, manifeste, service worker et icônes vérifiés (HTTP 200).
 39. Avenant v2.1 : décision d'hébergement consignée, export PDF (`docs/cahier-des-charges-v2.1.pdf`, 7 pages, généré avec Chrome sans en-têtes).
+40. Apprendre : 18 articles ajoutés (33 au total, 8 thèmes dont « Idées reçues et bien-être »), sources diversifiées et vérifiées par requête (Inserm, OMS, UNICEF, ACOG, Cleveland Clinic, NHS ; Mayo Clinic et Ameli injoignables automatiquement, non retenus). Page refondue : recherche, grille de thèmes, « Pour commencer », durée de lecture, « À lire aussi ». Test `articles.test.ts`. 58 tests, lint, build OK.
+41. Avenant v2.1 mis à jour (section 6) et PDF régénéré.

@@ -19,7 +19,7 @@ Référence : Cahier des charges MIA v2.0 (02/11/2026). Dernière mise à jour :
 - [x] Migration de schéma testée (T22)
 - [x] Police Inter auto-hébergée (4 graisses WOFF2), icônes PNG générées (`npm run icons`)
 - [x] ESLint + workflows GitHub Actions : CI (lint, tests, build, audit) et déploiement GitHub Pages
-- [x] 15 articles structurés avec sources (en attente de relecture)
+- [x] 33 articles / 8 thèmes avec sources variées (Inserm, OMS, UNICEF, ACOG, Cleveland Clinic, NHS), en attente de relecture ; page Apprendre : recherche, thèmes, « Pour commencer », « À lire aussi »
 - [x] PIN : blocage progressif après 5 échecs
 - [x] Thème clair / sombre / automatique (Profil → Apparence)
 - [x] Déverrouillage par empreinte (WebAuthn + PRF), PIN en secours — à valider sur appareil réel
@@ -47,7 +47,7 @@ Ajoutés à la demande du porteur de projet, hors cahier v2.0 : énergie et somm
 ## À faire
 
 ### Fonctionnel
-- [ ] Relecture et signature des 15 articles par un référent santé (renseigner `reviewer` dans `src/content/articles.ts`)
+- [ ] Relecture et signature des 33 articles par un référent santé (renseigner `reviewer` dans `src/content/articles.ts`)
 
 ### Écarts au cahier des charges
 - [ ] Passer les styles en CSS Modules (actuellement une feuille globale `src/ui/styles.css`)

@@ -35,7 +35,7 @@ Toute exigence de la v2.0 non citée ci-dessous est conservée à l'identique.
 | A9 | Sauvegarde chiffrée par mot de passe (fichier `.mia`) et son import | 4 (Import), 7.3 | Devrait |
 | A10 | Animations douces, retour haptique léger | 11 | Pourrait |
 | A11 | Prolongation des jours estimés du calendrier par la durée moyenne des règles, si au moins 3 dates de fin | 6.5 (déjà prévu) | Doit |
-| A12 | Contenus éducatifs : 15 articles rédigés, sources indiquées | 17 | Doit |
+| A12 | Contenus éducatifs : 33 articles rédigés, 8 thèmes, sources variées ; page Apprendre avec recherche | 17 | Doit |
 
 ### 2.1 Thème et palettes (A1, A2)
 
@@ -123,12 +123,20 @@ Cinq essais, puis blocage de 30 secondes, doublé à chaque échec supplémentai
 
 ## 6. Contenus éducatifs : mise à jour de la section 17
 
-Quinze articles rédigés pour MIA, répartis sur les sept thèmes prévus : Comprendre le cycle (3), Les règles (2), Premières règles (1), Symptômes (3), Cycles irréguliers (2), Quand consulter (1), Les étapes de la vie (3).
+**Trente-trois articles** rédigés pour MIA, répartis sur huit thèmes : les sept thèmes de la v2.0 (Comprendre le cycle, Les règles, Premières règles, Symptômes, Cycles irréguliers, Quand consulter, Les étapes de la vie) et un huitième ajouté, **Idées reçues et bien-être**.
 
-- Les textes sont originaux ; ils s'appuient sur des informations de santé publique et indiquent leurs sources (liens NHS, en anglais). Aucun texte n'a été copié.
-- Chaque article porte titre, thème, date de révision, version, relecteur et, le cas échéant, un encadré « Consultez un professionnel de santé si… ».
-- **Aucun article n'est relu.** Ils s'affichent « en attente de relecture ». La règle de la v2.0 est maintenue : pas de diffusion publique avant relecture et signature par une personne compétente en santé. L'adaptation au contexte local (par exemple, accès aux protections, ressources de santé disponibles) est à confier au relecteur.
-- Sources en français à ajouter par le relecteur (par exemple des organismes de santé francophones), afin de ne pas dépendre de sources en anglais.
+- Les textes sont originaux ; ils s'appuient sur des informations de santé publique et indiquent leurs sources. Aucun texte n'a été copié.
+- Sources variées, liens vérifiés accessibles le 3 novembre 2026 : Inserm (en français), OMS, UNICEF, ACOG (société américaine d'obstétrique et gynécologie), Cleveland Clinic et NHS. Chaque lien est marqué FR ou EN. D'autres sources francophones (assurance maladie, sociétés savantes, ministère de la santé, ressources locales au Togo) sont à ajouter par le relecteur ; certaines pages n'ont pas pu être vérifiées automatiquement.
+- Chaque article porte titre, résumé, thème, durée de lecture, date de révision, version, relecteur et, le cas échéant, un encadré « Consultez un professionnel de santé si… ».
+- **Aucun article n'est relu.** Ils s'affichent « en attente de relecture ». La règle de la v2.0 est maintenue : pas de diffusion publique avant relecture et signature par une personne compétente en santé. L'adaptation au contexte local (accès aux protections, ressources de santé disponibles, pratiques de consultation) est à confier au relecteur.
+- Un test automatique garantit l'unicité des identifiants, la présence des sources (https, au moins cinq organismes différents) et l'absence de toute mention de jours fertiles ou de période « sans risque ».
+
+### 6.1 Page Apprendre (organisation)
+
+- Barre de recherche tolérante aux accents, par titre, résumé et contenu ; le résultat reste dans l'adresse de la page.
+- « Pour commencer » : articles mis en avant.
+- Grille des huit thèmes (icône, description, nombre d'articles) ; ouverture d'un thème = liste de ses articles.
+- Chaque article indique sa durée de lecture et un badge « Avis médical » s'il contient des signes d'alerte ; en bas : « À lire aussi » (même thème) et sources.
 
 ## 7. Tests : mise à jour de la section 18
 
@@ -169,7 +177,7 @@ Mesure de performance (section 16) : le JavaScript initial pèse environ 79 Ko c
 ## 9. Validations requises avant diffusion publique
 
 1. Porteur de projet : accepter ou refuser chaque ajout du § 2 et chaque écart du § 4.
-2. Référent santé : relire et signer les 15 articles, confirmer les seuils (section 6.2) et les formulations des constats.
+2. Référent santé : relire et signer les 33 articles, confirmer les seuils (section 6.2) et les formulations des constats.
 3. Référent protection des données : examen du cadre juridique, y compris sauvegarde chiffrée et empreinte.
 4. Recette sur appareils réels : T19, T21, T24, T29 et tests de bout en bout.
 5. ~~Décision d'hébergement~~ : prise (dépôt public, GitHub Pages) ; reste à vérifier l'installation sur téléphone (Chrome → « Installer l'application »).

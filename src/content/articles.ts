@@ -6,10 +6,14 @@ export type Block = { h: string } | { p: string } | { ul: string[] };
 export interface Source {
   label: string;
   url: string;
+  /** Langue de la page ; l'anglais par défaut. */
+  lang?: 'fr' | 'en';
 }
 
 export interface Article {
   slug: string;
+  /** Mis en avant dans « Pour commencer ». */
+  featured?: boolean;
   title: string;
   theme: string;
   summary: string;
@@ -22,14 +26,34 @@ export interface Article {
 }
 
 const NHS_PERIODS: Source = { label: 'NHS — Periods', url: 'https://www.nhs.uk/conditions/periods/' };
-const NHS_PAIN: Source = { label: 'NHS — Period pain', url: 'https://www.nhs.uk/conditions/period-pain/' };
+const NHS_PAIN: Source = { label: 'NHS — Period pain', url: 'https://www.nhs.uk/symptoms/period-pain/' };
 const NHS_PMS: Source = { label: 'NHS — Premenstrual syndrome', url: 'https://www.nhs.uk/conditions/pre-menstrual-syndrome/' };
-const NHS_MENO: Source = { label: 'NHS — Menopause', url: 'https://www.nhs.uk/conditions/menopause/' };
+const NHS_MENO: Source = { label: 'NHS — Menopause', url: 'https://www.nhs.uk/conditions/menopause-and-perimenopause/' };
 const NHS_HEAVY: Source = { label: 'NHS — Heavy periods', url: 'https://www.nhs.uk/conditions/heavy-periods/' };
 
 const R = '2026-11-02';
 
-export const ARTICLES: Article[] = [
+import { MORE_ARTICLES } from './articles-more';
+
+export interface ThemeInfo {
+  name: string;
+  icon: 'compass' | 'flower' | 'sprout' | 'activity' | 'waves' | 'stethoscope' | 'hourglass' | 'sparkles';
+  blurb: string;
+}
+
+/** Ordre d'affichage des thèmes dans Apprendre. */
+export const THEMES: ThemeInfo[] = [
+  { name: 'Comprendre le cycle', icon: 'compass', blurb: 'Les phases, les hormones, comment MIA calcule.' },
+  { name: 'Les règles', icon: 'flower', blurb: 'Durée, flux, protections, vie quotidienne.' },
+  { name: 'Premières règles', icon: 'sprout', blurb: 'À quoi s\'attendre quand tout commence.' },
+  { name: 'Symptômes', icon: 'activity', blurb: 'Douleurs, humeur, fatigue, digestion.' },
+  { name: 'Cycles irréguliers', icon: 'waves', blurb: 'Causes fréquentes et repères.' },
+  { name: 'Quand consulter', icon: 'stethoscope', blurb: 'Les signes qui justifient un avis médical.' },
+  { name: 'Les étapes de la vie', icon: 'hourglass', blurb: 'Adolescence, grossesse, périménopause, ménopause.' },
+  { name: 'Idées reçues et bien-être', icon: 'sparkles', blurb: 'Démêler le vrai du faux, en parler sereinement.' },
+];
+
+const BASE_ARTICLES: Article[] = [
   // — Comprendre le cycle —
   {
     slug: 'phases-du-cycle',
@@ -160,6 +184,7 @@ export const ARTICLES: Article[] = [
   // — Premières règles —
   {
     slug: 'premieres-regles',
+    featured: true,
     title: 'Premières règles : à quoi s\'attendre',
     theme: 'Premières règles',
     summary: 'L\'âge, les premiers cycles irréguliers, et comment se préparer.',
@@ -401,3 +426,61 @@ export const ARTICLES: Article[] = [
     sources: [NHS_MENO],
   },
 ];
+
+const src = (label: string, url: string, lang: 'fr' | 'en' = 'en'): Source => ({ label, url, lang });
+const CLEVELAND = src('Cleveland Clinic — Menstrual cycle', 'https://my.clevelandclinic.org/health/articles/10132-menstrual-cycle');
+const ACOG_AUB = src('ACOG — Abnormal uterine bleeding', 'https://www.acog.org/womens-health/faqs/abnormal-uterine-bleeding');
+const ACOG_PMS = src('ACOG — Premenstrual syndrome', 'https://www.acog.org/womens-health/faqs/premenstrual-syndrome');
+const ACOG_FIRST = src('ACOG — Your first period', 'https://www.acog.org/womens-health/faqs/your-first-period');
+const ACOG_PAIN = src('ACOG — Painful periods (dysmenorrhea)', 'https://www.acog.org/womens-health/faqs/dysmenorrhea-painful-periods');
+const ACOG_HEAVY = src('ACOG — Heavy menstrual bleeding', 'https://www.acog.org/womens-health/faqs/heavy-menstrual-bleeding');
+const ACOG_ENDO = src('ACOG — Endometriosis', 'https://www.acog.org/womens-health/faqs/endometriosis');
+const WHO_ANAEMIA = src('OMS — Anémie (anaemia)', 'https://www.who.int/news-room/fact-sheets/detail/anaemia');
+const WHO_ACTIVITY = src('OMS — Activité physique (physical activity)', 'https://www.who.int/news-room/fact-sheets/detail/physical-activity');
+const WHO_ADOLESCENT = src('OMS — Santé des adolescents (adolescent health)', 'https://www.who.int/news-room/fact-sheets/detail/adolescent-health');
+const WHO_MENO = src('OMS — Ménopause (menopause)', 'https://www.who.int/news-room/fact-sheets/detail/menopause');
+const UNICEF = src('UNICEF — Hygiène menstruelle (menstrual hygiene)', 'https://www.unicef.org/wash/menstrual-hygiene');
+const INSERM_ENDO = src('Inserm — Endométriose', 'https://www.inserm.fr/dossier/endometriose/', 'fr');
+const INSERM_MENO = src('Inserm — Ménopause', 'https://www.inserm.fr/dossier/menopause/', 'fr');
+const INSERM_SOPK = src('Inserm — Syndrome des ovaires polykystiques', 'https://www.inserm.fr/dossier/syndrome-ovaires-polykystiques/', 'fr');
+const INSERM_CONTRA = src('Inserm — Contraception', 'https://www.inserm.fr/dossier/contraception/', 'fr');
+
+/** Sources complémentaires (organismes internationaux, sociétés savantes, Inserm), ajoutées aux sources propres à chaque article. */
+const EXTRA_SOURCES: Record<string, Source[]> = {
+  'phases-du-cycle': [CLEVELAND],
+  'pourquoi-la-duree-varie': [CLEVELAND, ACOG_AUB],
+  'hormones-du-cycle': [CLEVELAND],
+  'regles-ce-qui-est-courant': [CLEVELAND],
+  'protections-et-hygiene': [UNICEF],
+  'regles-abondantes': [ACOG_HEAVY, WHO_ANAEMIA],
+  'regles-et-sport': [WHO_ACTIVITY],
+  'regles-et-alimentation': [WHO_ANAEMIA],
+  'regles-au-quotidien': [UNICEF],
+  'premieres-regles': [ACOG_FIRST, WHO_ADOLESCENT],
+  'adolescence': [ACOG_FIRST, WHO_ADOLESCENT],
+  'douleurs-de-regles': [ACOG_PAIN],
+  'syndrome-premenstruel': [ACOG_PMS],
+  'humeur-et-fatigue': [ACOG_PMS],
+  'cycles-irreguliers': [ACOG_AUB],
+  'quand-sen-preoccuper': [ACOG_AUB],
+  'quand-consulter': [ACOG_AUB],
+  'sopk-reperes': [INSERM_SOPK],
+  'endometriose-reperes': [INSERM_ENDO, ACOG_ENDO],
+  'perimenopause': [WHO_MENO, INSERM_MENO],
+  'menopause': [WHO_MENO, INSERM_MENO],
+  'contraception-hormonale-et-suivi': [INSERM_CONTRA],
+};
+
+export const ARTICLES: Article[] = [...BASE_ARTICLES, ...MORE_ARTICLES].map((a) => ({
+  ...a,
+  sources: [...a.sources, ...(EXTRA_SOURCES[a.slug] ?? [])],
+}));
+
+/** Durée de lecture estimée, en minutes (200 mots par minute, minimum 1). */
+export function readingMinutes(a: Article): number {
+  const words = a.body
+    .map((b) => ('h' in b ? b.h : 'p' in b ? b.p : b.ul.join(' ')))
+    .join(' ')
+    .split(/\s+/).length;
+  return Math.max(1, Math.ceil(words / 200));
+}
