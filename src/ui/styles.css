@@ -740,3 +740,64 @@ textarea.input {
     }
   }
 }
+
+/* Page Apprendre */
+.learn-search {
+  position: relative;
+  margin-bottom: var(--sp-4);
+}
+.learn-search svg {
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+.learn-search .input {
+  padding-left: 42px;
+  border-radius: 999px;
+}
+.learn-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--sp-3) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.learn-row a {
+  font-weight: 600;
+  min-height: 24px;
+}
+.learn-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.theme-grid {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-3);
+}
+.theme-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  height: 100%;
+  padding: var(--sp-4);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--color-card) 86%, transparent);
+  color: var(--color-text);
+  text-decoration: none;
+}
+.theme-card svg {
+  color: var(--color-accent);
+}
+.theme-card strong {
+  color: var(--color-accent);
+  line-height: 1.25;
+}
