@@ -6,6 +6,7 @@ import { fmtLong, fmtShort, usePeriods, useSetting } from '../../app/hooks';
 import { today } from '../../domain/calendarDate';
 import { summarize } from '../../domain/prediction';
 import { daysBetween } from '../../domain/calendarDate';
+import { CycleRing } from './CycleRing';
 
 export function Home() {
   const { t } = useTranslation();
@@ -41,9 +42,15 @@ export function Home() {
               <p>{t('home.empty')}</p>
             ) : (
               <>
-                <p className="big">
-                  {summary.cycleDay ? t('home.cycleDay', { n: summary.cycleDay }) : t('home.cycleDayUnknown')}
-                </p>
+                {summary.cycleDay ? (
+                  <CycleRing
+                    day={summary.cycleDay}
+                    length={p.kind === 'Estimation' || p.kind === 'Plage' ? p.average : null}
+                    daysUntil={p.kind === 'Estimation' ? daysBetween(todayStr, p.date) : null}
+                  />
+                ) : (
+                  <p className="big">{t('home.cycleDayUnknown')}</p>
+                )}
                 {p.kind === 'Insuffisant' && <p>{t('home.insufficient', { n: p.missing })}</p>}
                 {p.kind === 'Estimation' && <p><strong>{t('home.estimateDate', { date: fmtLong(p.date) })}</strong></p>}
                 {p.kind === 'Plage' && (

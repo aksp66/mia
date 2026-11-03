@@ -9,6 +9,16 @@ import { addDays, fromParts, today, type CalendarDate } from '../../domain/calen
 import { estimatedDays, predict } from '../../domain/prediction';
 import { averagePeriodLength, periodLength } from '../../domain/cycle';
 
+const GROUP: Record<string, string> = {
+  cramps: 'pain', headache: 'pain', backPain: 'pain',
+  fatigue: 'energy', sleep: 'energy',
+  bloating: 'digest', nausea: 'digest', cravings: 'digest',
+  moodCalm: 'mood', moodIrritable: 'mood', moodSad: 'mood', moodAnxious: 'mood',
+  acne: 'body', breastTenderness: 'body', discharge: 'body',
+};
+/** Groupes de symptômes distincts d'un jour (3 pastilles au plus). */
+const dotGroups = (codes: readonly string[]) => [...new Set(codes.map((c) => GROUP[c] ?? 'body'))].slice(0, 3);
+
 const DOW = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
 
 export default function Calendar() {
@@ -33,7 +43,8 @@ export default function Calendar() {
     () => new Set(estimatedDays(predict(periods ?? []), averagePeriodLength(periods ?? []))),
     [periods],
   );
-  const symptomDays = useMemo(() => new Set((logs ?? []).filter((l) => l.symptoms.length).map((l) => l.date)), [logs]);
+  const symptomsByDay = useMemo(() => new Map((logs ?? []).filter((l) => l.symptoms.length).map((l) => [l.date, l.symptoms])), [logs]);
+  const symptomDays = useMemo(() => new Set(symptomsByDay.keys()), [symptomsByDay]);
 
   const first = fromParts(ym.y, ym.m, 1);
   const daysInMonth = new Date(Date.UTC(ym.y, ym.m, 0)).getUTCDate();
@@ -82,11 +93,17 @@ export default function Calendar() {
             recorded.has(d) && 'cal-day--period',
             !recorded.has(d) && estimated.has(d) && 'cal-day--estimated',
             d === now && 'cal-day--today',
-            symptomDays.has(d) && 'cal-day--symptom',
           ].filter(Boolean).join(' ');
           return (
             <button key={d} className={cls} aria-label={label(d)} aria-current={d === now ? 'date' : undefined} onClick={() => setSelected(d)}>
               {i + 1}
+              {symptomsByDay.has(d) && (
+                <span className="cal-dots" aria-hidden="true">
+                  {dotGroups(symptomsByDay.get(d)!).map((g) => (
+                    <i key={g} className={`dot--${g}`} />
+                  ))}
+                </span>
+              )}
             </button>
           );
         })}
@@ -98,7 +115,7 @@ export default function Calendar() {
         <li><span className="cal-day cal-day--period" aria-hidden="true" />{t('calendar.legendPeriod')}</li>
         <li><span className="cal-day cal-day--estimated" aria-hidden="true" />{t('calendar.legendEstimated')}</li>
         <li><span className="cal-day cal-day--today" aria-hidden="true" />{t('calendar.legendToday')}</li>
-        <li><span className="cal-day cal-day--symptom" aria-hidden="true" />{t('calendar.legendSymptom')}</li>
+        <li><span className="cal-dots" aria-hidden="true"><i className="dot--pain" /><i className="dot--energy" /><i className="dot--mood" /></span>{t('calendar.legendSymptom')}</li>
       </ul>
       {selected && (
         <Sheet title={fmtLong(selected)} onClose={() => setSelected(null)} closeLabel={t('common.close')}>

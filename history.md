@@ -35,3 +35,11 @@ Journal chronologique des actions menées sur le projet.
 29. Constat : dépôt privé, GitHub Pages indisponible (compte gratuit) ; options données : dépôt public ou Cloudflare/Netlify.
 30. Thème clair / sombre / auto (attribut `data-theme`, réglage `theme`), écrans Bienvenue et Verrou centrés (`.screen--center`).
 31. Empreinte : `src/data/biometric.ts` (WebAuthn + PRF), méthodes du `Vault`, bouton sur l'écran de verrou, réglage dans Profil → Code PIN ; 6 tests avec authentificateur simulé. 45 tests, lint et types OK.
+32. Suggestions de design et de fonctionnalités reçues : réalisées pour la part compatible avec le cahier des charges ; refus motivés pour phases ovulatoires, partage partenaire, push serveur, cloud automatique.
+33. Données : énergie et sommeil (1-5) dans `dayLogs`, export/import/CSV mis à jour. Journal : émojis d'humeur, échelles.
+34. `src/domain/insights.ts` + tests ; encart « Ce que vos données montrent » dans l'Historique.
+35. Design : dégradés, verre, jauge `CycleRing`, navigation à icône pleine, animations, vibration, pastilles colorées du calendrier, 4 palettes (contrastes vérifiés par script), `--color-brand-strong` assombri (4,48 → 4,91 sur le dégradé).
+36. Sauvegarde chiffrée (`encryptExport` / `decryptExport`), écrans Données. 52 tests, lint, types, build OK.
+37. Rédaction de l'avenant `docs/cahier-des-charges-v2.1.md` : ajouts, propositions écartées (dont publicités), choix techniques, sécurité, contenus, tests T23 à T29, risques, validations.
+38. Hébergement : dépôt passé en public par le porteur, GitHub Pages activé (workflow), PR #4 fusionnée, déploiement réussi ; site, manifeste, service worker et icônes vérifiés (HTTP 200).
+39. Avenant v2.1 : décision d'hébergement consignée, export PDF (`docs/cahier-des-charges-v2.1.pdf`, 7 pages, généré avec Chrome sans en-têtes).

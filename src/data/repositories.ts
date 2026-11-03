@@ -55,6 +55,8 @@ export class PeriodRepository {
 export interface DayLogData {
   flow?: Flow;
   symptoms: SymptomCode[];
+  energy?: number;
+  sleep?: number;
   note?: string;
 }
 
@@ -69,7 +71,7 @@ export class DayLogRepository {
   }
   save(date: CalendarDate, data: DayLogData): Promise<Result<void>> {
     return attempt(async () => {
-      const empty = !data.flow && data.symptoms.length === 0 && !data.note?.trim();
+      const empty = !data.flow && data.symptoms.length === 0 && !data.energy && !data.sleep && !data.note?.trim();
       if (empty) await this.d.dayLogs.delete(date);
       else await this.d.dayLogs.put({ date, ...data, note: data.note?.trim() || undefined, updatedAt: now() });
     });
