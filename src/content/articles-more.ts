@@ -1,4 +1,4 @@
-// Articles complémentaires. Mêmes règles que `articles.ts` : textes originaux, sources indiquées,
+// Articles complémentaires. Mêmes règles que `articles.ts` (le champ `reviewer` se renseigne dans les deux fichiers) : textes originaux, sources indiquées,
 // en attente de relecture par une personne compétente en santé (`reviewer: null`).
 import type { Article, Source } from './articles';
 

@@ -47,7 +47,7 @@ Ajoutés à la demande du porteur de projet, hors cahier v2.0 : énergie et somm
 ## À faire
 
 ### Fonctionnel
-- [ ] Relecture et signature des 33 articles par un référent santé (renseigner `reviewer` dans `src/content/articles.ts`)
+- [ ] Relecture et signature des 33 articles par un référent santé (renseigner `reviewer` dans `src/content/articles.ts` **et** `src/content/articles-more.ts`)
 
 ### Écarts au cahier des charges
 - [ ] Passer les styles en CSS Modules (actuellement une feuille globale `src/ui/styles.css`)
@@ -74,5 +74,5 @@ Ajoutés à la demande du porteur de projet, hors cahier v2.0 : énergie et somm
 - Empreinte : repose sur WebAuthn + extension PRF ; si l'appareil ou le navigateur ne la gère pas, l'option est refusée (non simulée). Non testé sur téléphone réel, seulement avec un authentificateur simulé.
 - PIN : limite restante — données en clair pendant une session ouverte (si l'appli est tuée, elles y restent jusqu'au prochain verrouillage). Correction complète = chiffrement permanent avec jeu de travail en mémoire (réécriture de la couche données). Réglages non sensibles en clair.
 - Publicités : refusées (pubs non visibles = fraude publicitaire ; contraire au cahier des charges : aucun traceur tiers, CSP stricte).
-- Les articles de `src/content/articles.ts` sont des brouillons : ne pas publier sans relecture signée.
+- Les articles de `src/content/articles.ts` et `src/content/articles-more.ts` sont des brouillons : ne pas publier sans relecture signée.
 - Le rendu n'a pas encore été vérifié dans un navigateur.

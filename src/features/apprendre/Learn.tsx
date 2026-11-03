@@ -1,9 +1,9 @@
 import { useMemo, type ComponentType } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Activity, Compass, Flower2, Hourglass, Search, Sparkles, Sprout, Stethoscope, Waves, type LucideProps } from 'lucide-react';
 import { Banner } from '../../ui/components';
-import { ARTICLES, THEMES, readingMinutes, type Article, type ThemeInfo } from '../../content/articles';
+import { ARTICLES, THEMES, isPendingReview, readingMinutes, type Article, type ThemeInfo } from '../../content/articles';
 import { fmtLong } from '../../app/hooks';
 
 const ICONS: Record<ThemeInfo['icon'], ComponentType<LucideProps>> = {
@@ -17,17 +17,22 @@ const ICONS: Record<ThemeInfo['icon'], ComponentType<LucideProps>> = {
   sparkles: Sparkles,
 };
 
+const MIN_QUERY = 2;
+
 /** Minuscules sans accents, pour une recherche tolérante. */
 const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
 const plainText = (a: Article) =>
   [a.title, a.summary, a.theme, ...a.body.map((b) => ('h' in b ? b.h : 'p' in b ? b.p : b.ul.join(' ')))].join(' ');
 
-function ArticleRow({ a, showTheme }: { a: Article; showTheme?: boolean }) {
+/** `from` : adresse de la liste d'où l'on vient, pour y revenir depuis l'article (recherche, thème). */
+function ArticleRow({ a, from, showTheme }: { a: Article; from: string; showTheme?: boolean }) {
   const { t } = useTranslation();
   return (
     <li className="learn-row">
-      <Link to={`/apprendre/${a.slug}`}>{a.title}</Link>
+      <Link to={`/apprendre/${a.slug}`} state={{ from }}>
+        {a.title}
+      </Link>
       <span className="muted">{a.summary}</span>
       <span className="muted learn-meta">
         {t('learn.minutes', { n: readingMinutes(a) })}
@@ -40,14 +45,18 @@ function ArticleRow({ a, showTheme }: { a: Article; showTheme?: boolean }) {
 
 function ArticleView({ a }: { a: Article }) {
   const { t } = useTranslation();
+  const state = useLocation().state as { from?: string } | null;
+  const from = state?.from ?? `/apprendre?theme=${encodeURIComponent(a.theme)}`;
+  const fromParams = new URLSearchParams(from.split('?')[1] ?? '');
+  const backLabel = fromParams.get('q') ? t('learn.backResults') : fromParams.get('theme') ? a.theme : t('learn.title');
   const related = ARTICLES.filter((x) => x.theme === a.theme && x.slug !== a.slug).slice(0, 3);
   return (
     <main className="screen article">
-      <Link to={`/apprendre?theme=${encodeURIComponent(a.theme)}`}>← {a.theme}</Link>
+      <Link to={from}>← {backLabel}</Link>
       <h1>{a.title}</h1>
       <p className="muted">
         {t('learn.minutes', { n: readingMinutes(a) })} · {t('learn.revised', { date: fmtLong(a.revised) })} ·{' '}
-        {a.reviewer ? t('learn.reviewedBy', { name: a.reviewer }) : t('learn.pendingReview')}
+        {isPendingReview(a) ? t('learn.pendingReview') : t('learn.reviewedBy', { name: a.reviewer })}
       </p>
       {a.body.map((b, i) =>
         'h' in b ? (
@@ -77,7 +86,7 @@ function ArticleView({ a }: { a: Article }) {
           <h2>{t('learn.related')}</h2>
           <ul className="list">
             {related.map((r) => (
-              <ArticleRow key={r.slug} a={r} />
+              <ArticleRow key={r.slug} a={r} from={from} />
             ))}
           </ul>
         </>
@@ -106,13 +115,15 @@ export default function Learn() {
   const { t } = useTranslation();
   const { article } = useParams();
   const [params, setParams] = useSearchParams();
+  const here = useLocation();
+  const hereUrl = here.pathname + here.search;
   const q = params.get('q') ?? '';
   const themeName = params.get('theme');
   const theme = THEMES.find((x) => x.name === themeName);
 
   const results = useMemo(() => {
     const needle = norm(q.trim());
-    if (needle.length < 2) return null;
+    if (needle.length < MIN_QUERY) return null;
     return ARTICLES.filter((a) => norm(plainText(a)).includes(needle));
   }, [q]);
 
@@ -150,6 +161,12 @@ export default function Learn() {
         />
       </form>
 
+      {q.trim().length > 0 && q.trim().length < MIN_QUERY && (
+        <p className="muted" role="status">
+          {t('learn.minQuery', { n: MIN_QUERY })}
+        </p>
+      )}
+
       {results ? (
         <section aria-live="polite">
           <h2>{t('learn.resultsCount', { count: results.length })}</h2>
@@ -158,7 +175,7 @@ export default function Learn() {
           ) : (
             <ul className="list">
               {results.map((a) => (
-                <ArticleRow key={a.slug} a={a} showTheme />
+                <ArticleRow key={a.slug} a={a} from={hereUrl} showTheme />
               ))}
             </ul>
           )}
@@ -170,7 +187,7 @@ export default function Learn() {
           <p className="muted">{theme.blurb}</p>
           <ul className="list">
             {ARTICLES.filter((a) => a.theme === theme.name).map((a) => (
-              <ArticleRow key={a.slug} a={a} />
+              <ArticleRow key={a.slug} a={a} from={hereUrl} />
             ))}
           </ul>
         </section>
@@ -180,7 +197,7 @@ export default function Learn() {
             <h2>{t('learn.start')}</h2>
             <ul className="list">
               {featured.map((a) => (
-                <ArticleRow key={a.slug} a={a} showTheme />
+                <ArticleRow key={a.slug} a={a} from={hereUrl} showTheme />
               ))}
             </ul>
           </section>

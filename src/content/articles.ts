@@ -447,6 +447,8 @@ const INSERM_CONTRA = src('Inserm — Contraception', 'https://www.inserm.fr/dos
 
 /** Sources complémentaires (organismes internationaux, sociétés savantes, Inserm), ajoutées aux sources propres à chaque article. */
 const EXTRA_SOURCES: Record<string, Source[]> = {
+  'bien-noter-son-cycle': [CLEVELAND, NHS_PERIODS],
+  'parler-des-regles': [UNICEF, WHO_ADOLESCENT],
   'phases-du-cycle': [CLEVELAND],
   'pourquoi-la-duree-varie': [CLEVELAND, ACOG_AUB],
   'hormones-du-cycle': [CLEVELAND],
@@ -475,6 +477,9 @@ export const ARTICLES: Article[] = [...BASE_ARTICLES, ...MORE_ARTICLES].map((a) 
   ...a,
   sources: [...a.sources, ...(EXTRA_SOURCES[a.slug] ?? [])],
 }));
+
+/** Vrai tant qu'aucune personne compétente en santé n'a relu et signé l'article (nom vide = non relu). */
+export const isPendingReview = (a: Pick<Article, 'reviewer'>): boolean => !a.reviewer?.trim();
 
 /** Durée de lecture estimée, en minutes (200 mots par minute, minimum 1). */
 export function readingMinutes(a: Article): number {

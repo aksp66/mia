@@ -143,6 +143,8 @@ export const fr = {
     minutes: '{{n}} min de lecture',
     medicalAdvice: 'Avis médical',
     related: 'À lire aussi',
+    backResults: 'Résultats de la recherche',
+    minQuery: 'Saisissez au moins {{n}} caractères pour lancer la recherche.',
   },
   profile: {
     title: 'Profil et paramètres',
