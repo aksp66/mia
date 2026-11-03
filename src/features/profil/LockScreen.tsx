@@ -9,8 +9,11 @@ export function LockScreen() {
   const [error, setError] = useState(false);
   const [busy, setBusy] = useState(false);
   const [waitSec, setWaitSec] = useState(0);
+  const [bio, setBio] = useState(false);
+  const [bioError, setBioError] = useState(false);
 
   useEffect(() => {
+    void vault.biometricEnabled().then(setBio);
     void vault.lockoutRemaining().then((ms) => setWaitSec(Math.ceil(ms / 1000)));
   }, []);
   useEffect(() => {
@@ -33,10 +36,24 @@ export function LockScreen() {
     }
   }
 
+  async function unlockBio() {
+    setError(false);
+    const r = await vault.unlockWithBiometric();
+    if (!r.ok) setBioError(true);
+  }
+
   return (
-    <main className="screen screen--full">
+    <main className="screen screen--full screen--center">
       <Logo />
       <h1>{t('lock.title')}</h1>
+      {bio && (
+        <>
+          <Button variant="primary" onClick={unlockBio} disabled={waitSec > 0}>
+            {t('lock.bio')}
+          </Button>
+          {bioError && <Banner kind="warn">{t('lock.bioFailed')}</Banner>}
+        </>
+      )}
       <form onSubmit={submit}>
         <label className="field">
           <span>{t('lock.pin')}</span>
@@ -53,7 +70,7 @@ export function LockScreen() {
         </label>
         {error && <Banner kind="error">{t('lock.wrong')}</Banner>}
         {waitSec > 0 && <Banner kind="warn">{t('lock.wait', { n: waitSec })}</Banner>}
-        <Button variant="primary" type="submit" disabled={busy || waitSec > 0 || pin.length < 4}>
+        <Button variant={bio ? 'secondary' : 'primary'} type="submit" disabled={busy || waitSec > 0 || pin.length < 4}>
           {t('lock.unlock')}
         </Button>
       </form>

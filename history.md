@@ -32,3 +32,6 @@ Journal chronologique des actions menées sur le projet.
 26. Calendrier : prolongation par la durée moyenne des règles (≥ 3 dates de fin) ; test de migration T22.
 27. ESLint (TypeScript passé en 6.0 : typescript-eslint ne gère pas TS 7), workflows CI et déploiement Pages. 39 tests, lint propre, build OK.
 28. Demande de publicités invisibles refusée (fraude publicitaire, contraire au cahier des charges).
+29. Constat : dépôt privé, GitHub Pages indisponible (compte gratuit) ; options données : dépôt public ou Cloudflare/Netlify.
+30. Thème clair / sombre / auto (attribut `data-theme`, réglage `theme`), écrans Bienvenue et Verrou centrés (`.screen--center`).
+31. Empreinte : `src/data/biometric.ts` (WebAuthn + PRF), méthodes du `Vault`, bouton sur l'écran de verrou, réglage dans Profil → Code PIN ; 6 tests avec authentificateur simulé. 45 tests, lint et types OK.

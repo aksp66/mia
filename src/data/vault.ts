@@ -1,5 +1,6 @@
 import { db, type DayLogRow, type MiaDB, type PeriodRow } from './db';
 import { attempt, type Result } from './result';
+import { webAuthnProvider, type BiometricProvider } from './biometric';
 
 /**
  * Verrouillage par code (section 13.2). Clé dérivée du PIN (PBKDF2-SHA-256, sel aléatoire), chiffrement AES-GCM 256.
@@ -57,6 +58,7 @@ export class Vault {
   constructor(
     private readonly d: MiaDB = db,
     private readonly iterations = PBKDF2_ITERATIONS,
+    private readonly bio: BiometricProvider = webAuthnProvider,
   ) {}
 
   getStatus = (): VaultStatus => this.status;
@@ -182,11 +184,71 @@ export class Vault {
     return attempt(async () => {
       if (this.status !== 'unlocked') throw new Error('locked');
       await this.d.transaction('rw', this.d.meta, this.d.settings, async () => {
-        await this.d.meta.bulkDelete(['encryption', 'vault', 'session', 'attempts']);
+        await this.d.meta.bulkDelete(['encryption', 'vault', 'session', 'attempts', 'bio']);
         await this.d.settings.put({ key: 'lockEnabled', value: false });
       });
       this.key = null;
       this.set('disabled');
+    });
+  }
+
+  /** Vérifie un PIN sans modifier l'état ni compter d'échec (session déverrouillée). */
+  private async pinMatches(pin: string): Promise<boolean> {
+    const meta = (await this.d.meta.get('encryption'))?.value as { salt: string; iterations: number } | undefined;
+    const blob = (await this.d.meta.get('vault'))?.value as Blob64 | undefined;
+    if (!meta || !blob) return false;
+    try {
+      await this.open(await this.derive(pin, fromB64(meta.salt), meta.iterations), blob);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  biometricAvailable = (): Promise<boolean> => this.bio.isAvailable();
+
+  async biometricEnabled(): Promise<boolean> {
+    return (await this.d.meta.get('bio')) !== undefined;
+  }
+
+  /** Active l'empreinte (session déverrouillée, PIN demandé pour confirmation). */
+  enableBiometric(pin: string): Promise<Result<void>> {
+    return attempt(async () => {
+      if (this.status !== 'unlocked') throw new Error('locked');
+      if (!(await this.pinMatches(pin))) throw new Error('wrongPin');
+      const { credentialId, prf } = await this.bio.create();
+      if (!prf) throw new Error('unsupported');
+      const salt = crypto.getRandomValues(new Uint8Array(32));
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const key = await crypto.subtle.importKey('raw', await this.bio.secret(credentialId, salt), 'AES-GCM', false, ['encrypt']);
+      const data = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(pin));
+      await this.d.meta.put({
+        key: 'bio',
+        value: { id: toB64(credentialId), salt: toB64(salt), iv: toB64(iv), data: toB64(new Uint8Array(data)) },
+      });
+    });
+  }
+
+  disableBiometric(): Promise<Result<void>> {
+    return attempt(async () => {
+      await this.d.meta.delete('bio');
+    });
+  }
+
+  /** Déverrouille après vérification biométrique ; le PIN est retrouvé grâce au secret de l'authentificateur. */
+  unlockWithBiometric(): Promise<Result<void>> {
+    return attempt(async () => {
+      const b = (await this.d.meta.get('bio'))?.value as { id: string; salt: string; iv: string; data: string } | undefined;
+      if (!b) throw new Error('noBio');
+      const key = await crypto.subtle.importKey('raw', await this.bio.secret(fromB64(b.id), fromB64(b.salt)), 'AES-GCM', false, ['decrypt']);
+      let pin: string;
+      try {
+        pin = dec.decode(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: fromB64(b.iv) }, key, fromB64(b.data)));
+      } catch {
+        throw new Error('bioFailed');
+      }
+      const r = await this.unlock(pin);
+      if (!r.ok) throw new Error(r.error);
     });
   }
 

@@ -3,7 +3,7 @@ import { Navigate, NavLink, Route, Routes, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next';
 import { BookOpen, CalendarDays, Circle, History, UserRound } from 'lucide-react';
 import { ToastProvider } from '../ui/components';
-import { useSetting } from './hooks';
+import { useSetting, type Theme } from './hooks';
 import { useVaultStatus } from './useVault';
 import { vault } from '../data/vault';
 import { LockScreen } from '../features/profil/LockScreen';
@@ -62,6 +62,13 @@ export function App() {
   const online = useOnline();
   const [welcomed] = useSetting<boolean>('welcomed', false);
   const lock = useVaultStatus();
+  const [theme] = useSetting<Theme>('theme', 'auto');
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'light' || theme === 'dark') root.dataset.theme = theme;
+    else delete root.dataset.theme;
+  }, [theme]);
 
   useEffect(() => {
     void vault.init();

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Banner, Button, useToast } from '../../ui/components';
@@ -12,7 +12,36 @@ export default function Security() {
   const [pin, setPin] = useState('');
   const [again, setAgain] = useState('');
   const [error, setError] = useState('');
+  const [bioOn, setBioOn] = useState(false);
+  const [bioSupported, setBioSupported] = useState(false);
+  const [bioPin, setBioPin] = useState('');
+  const [bioMsg, setBioMsg] = useState('');
   const digits = (s: string) => s.replace(/\D/g, '').slice(0, 6);
+
+  useEffect(() => {
+    void vault.biometricEnabled().then(setBioOn);
+    void vault.biometricAvailable().then(setBioSupported);
+  }, [status]);
+
+  async function enableBio() {
+    setBioMsg('');
+    const r = await vault.enableBiometric(bioPin);
+    setBioPin('');
+    if (r.ok) {
+      setBioOn(true);
+      toast({ message: t('security.bioActive') });
+    } else {
+      setBioMsg(
+        r.error === 'wrongPin' ? t('security.bioWrongPin') : r.error === 'unsupported' ? t('security.bioUnsupported') : t('security.bioFailed'),
+      );
+    }
+  }
+
+  async function disableBio() {
+    await vault.disableBiometric();
+    setBioOn(false);
+    toast({ message: t('security.bioOff') });
+  }
 
   async function enable() {
     if (!PIN_PATTERN.test(pin)) return setError(t('security.badPin'));
@@ -46,6 +75,24 @@ export default function Security() {
       ) : (
         <>
           <p>{t('security.active')}</p>
+          <section className="card">
+            <h2>{t('security.bioTitle')}</h2>
+            <p className="muted">{t('security.bioHint')}</p>
+            {!bioSupported ? (
+              <p className="muted">{t('security.bioUnsupported')}</p>
+            ) : bioOn ? (
+              <Button onClick={disableBio}>{t('security.bioDisable')}</Button>
+            ) : (
+              <>
+                <label className="field">
+                  <span>{t('security.bioPin')}</span>
+                  <input className="input" type="password" inputMode="numeric" autoComplete="off" value={bioPin} onChange={(e) => setBioPin(digits(e.target.value))} />
+                </label>
+                {bioMsg && <p className="error" role="alert">{bioMsg}</p>}
+                <Button disabled={bioPin.length < 4} onClick={enableBio}>{t('security.bioEnable')}</Button>
+              </>
+            )}
+          </section>
           <Button variant="primary" onClick={() => void vault.lock()}>{t('security.lockNow')}</Button>
           <Button variant="danger" onClick={async () => {
             const r = await vault.disable();

@@ -21,6 +21,9 @@ Référence : Cahier des charges MIA v2.0 (02/11/2026). Dernière mise à jour :
 - [x] ESLint + workflows GitHub Actions : CI (lint, tests, build, audit) et déploiement GitHub Pages
 - [x] 15 articles structurés avec sources (en attente de relecture)
 - [x] PIN : blocage progressif après 5 échecs
+- [x] Thème clair / sombre / automatique (Profil → Apparence)
+- [x] Déverrouillage par empreinte (WebAuthn + PRF), PIN en secours — à valider sur appareil réel
+- [x] Écrans Bienvenue et Verrou centrés verticalement
 - [x] Build de production OK (JS initial ≈ 149 Ko gzip, < 200 Ko)
 
 ## À faire
@@ -48,6 +51,7 @@ Référence : Cahier des charges MIA v2.0 (02/11/2026). Dernière mise à jour :
 - [ ] Maquettes graphiques détaillées (Figma ou équivalent)
 
 ## Points d'attention
+- Empreinte : repose sur WebAuthn + extension PRF ; si l'appareil ou le navigateur ne la gère pas, l'option est refusée (non simulée). Non testé sur téléphone réel, seulement avec un authentificateur simulé.
 - PIN : limite restante — données en clair pendant une session ouverte (si l'appli est tuée, elles y restent jusqu'au prochain verrouillage). Correction complète = chiffrement permanent avec jeu de travail en mémoire (réécriture de la couche données). Réglages non sensibles en clair.
 - Publicités : refusées (pubs non visibles = fraude publicitaire ; contraire au cahier des charges : aucun traceur tiers, CSP stricte).
 - Les articles de `src/content/articles.ts` sont des brouillons : ne pas publier sans relecture signée.

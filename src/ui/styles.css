@@ -50,8 +50,23 @@
   font-family: Inter, Roboto, -apple-system, 'Segoe UI', system-ui, sans-serif;
   color-scheme: light;
 }
+:root[data-theme='dark'] {
+  --color-bg: #1e141b;
+  --color-card: #2a1d26;
+  --color-surface: #2a1d26;
+  --color-text: #f5e9ef;
+  --color-text-muted: #cdb8c4;
+  --color-accent: #e7a9c0;
+  --color-brand-strong: #e7a9c0;
+  --color-border: #4a3643;
+  --on-accent: #1e141b;
+  --color-error: #ff8a80;
+  --color-success: #7fd1a8;
+  --color-warning: #ffcc80;
+  color-scheme: dark;
+}
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     --color-bg: #1e141b;
     --color-card: #2a1d26;
     --color-surface: #2a1d26;
@@ -462,4 +477,18 @@ textarea.input {
   .cal-day {
     transition: background-color 0.2s;
   }
+}
+
+.screen--center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+.screen--center .field,
+.screen--center .switch {
+  text-align: left;
+}
+.screen--center .dots {
+  margin: var(--sp-4) 0;
 }
