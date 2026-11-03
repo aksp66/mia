@@ -24,7 +24,7 @@ export function Welcome() {
   }
 
   return (
-    <main className="screen screen--full">
+    <main className="screen screen--full screen--center">
       <Logo />
       <h1>{s.title}</h1>
       <p>{s.body}</p>

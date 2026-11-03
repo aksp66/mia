@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Link, Route, Routes, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Banner, Button, useToast } from '../../ui/components';
-import { useSetting } from '../../app/hooks';
+import { Banner, Button, Chip, useToast } from '../../ui/components';
+import { useSetting, type Theme } from '../../app/hooks';
 import { settingsRepo } from '../../data/repositories';
 import { APP_VERSION, buildExport, importData, parseExport, toCsv, type ImportMode, type MiaExport } from '../../data/exchange';
 import { today } from '../../domain/calendarDate';
@@ -18,9 +18,20 @@ function Back() {
 function Index() {
   const { t } = useTranslation();
   const [discreet, setDiscreet] = useSetting<boolean>('discreet', false);
+  const [theme, setTheme] = useSetting<Theme>('theme', 'auto');
   return (
     <main className="screen">
       <h1>{t('profile.title')}</h1>
+      <section className="card">
+        <fieldset className="chips" style={{ marginBottom: 16 }}>
+          <legend className="legend">{t('profile.appearance')}</legend>
+          {(['auto', 'light', 'dark'] as const).map((m) => (
+            <Chip key={m} pressed={theme === m} onToggle={() => void setTheme(m)}>
+              {t(`profile.theme${m === 'auto' ? 'Auto' : m === 'light' ? 'Light' : 'Dark'}`)}
+            </Chip>
+          ))}
+        </fieldset>
+      </section>
       <section className="card">
         <h2>{t('profile.privacy')}</h2>
         <label className="switch">
