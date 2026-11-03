@@ -69,3 +69,26 @@ describe('export / import', () => {
     expect(r.ok && r.value).toEqual({ addedPeriods: 0, duplicates: 1 });
   });
 });
+
+import { decryptExport, encryptExport, isEncryptedExport } from '../src/data/exchange';
+
+describe('sauvegarde chiffrée', () => {
+  it('aller-retour avec le bon mot de passe, jamais lisible sans', async () => {
+    await new PeriodRepository(a).save({ startDate: D('2026-10-03') });
+    const clair = JSON.stringify(await buildExport(a));
+    const chiffre = await encryptExport(clair, 'mot de passe solide', 1000);
+    expect(isEncryptedExport(chiffre)).toBe(true);
+    expect(isEncryptedExport(clair)).toBe(false);
+    expect(chiffre).not.toContain('2026-10-03');
+    const r = await decryptExport(chiffre, 'mot de passe solide');
+    expect(r).toEqual({ ok: true, value: clair });
+  });
+  it('refuse un mauvais mot de passe ou un fichier altéré', async () => {
+    const chiffre = await encryptExport('{"a":1}', 'bonmotdepasse', 1000);
+    expect(await decryptExport(chiffre, 'mauvaismdp')).toEqual({ ok: false, error: 'wrongPassphrase' });
+    const f = JSON.parse(chiffre);
+    f.data = f.data.slice(0, -4) + 'AAAA';
+    expect((await decryptExport(JSON.stringify(f), 'bonmotdepasse')).ok).toBe(false);
+    expect((await decryptExport('pas du json', 'x')).ok).toBe(false);
+  });
+});

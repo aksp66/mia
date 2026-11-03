@@ -3,7 +3,7 @@ import { Navigate, NavLink, Route, Routes, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next';
 import { BookOpen, CalendarDays, Circle, History, UserRound } from 'lucide-react';
 import { ToastProvider } from '../ui/components';
-import { useSetting, type Theme } from './hooks';
+import { useSetting, type Palette, type Theme } from './hooks';
 import { useVaultStatus } from './useVault';
 import { vault } from '../data/vault';
 import { LockScreen } from '../features/profil/LockScreen';
@@ -31,8 +31,14 @@ function Nav() {
         {items.map(({ to, label, icon: Icon, end }) => (
           <li key={to}>
             <NavLink to={to} end={end}>
-              <Icon size={24} strokeWidth={1.75} aria-hidden="true" />
-              {label}
+              {({ isActive }) => (
+                <>
+                  <span className="nav-ico">
+                    <Icon size={24} strokeWidth={1.75} fill={isActive ? 'currentColor' : 'none'} fillOpacity={0.25} aria-hidden="true" />
+                  </span>
+                  {label}
+                </>
+              )}
             </NavLink>
           </li>
         ))}
@@ -63,12 +69,19 @@ export function App() {
   const [welcomed] = useSetting<boolean>('welcomed', false);
   const lock = useVaultStatus();
   const [theme] = useSetting<Theme>('theme', 'auto');
+  const [palette] = useSetting<Palette>('palette', 'peony');
 
   useEffect(() => {
     const root = document.documentElement;
     if (theme === 'light' || theme === 'dark') root.dataset.theme = theme;
     else delete root.dataset.theme;
   }, [theme]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (palette && palette !== 'peony') root.dataset.palette = palette;
+    else delete root.dataset.palette;
+  }, [palette]);
 
   useEffect(() => {
     void vault.init();
@@ -91,6 +104,7 @@ export function App() {
           </p>
         )}
         <Suspense fallback={null}>
+          <div className="page" key={loc.pathname} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           <Routes>
             <Route path="/bienvenue" element={<Welcome />} />
             <Route path="/" element={<Home />} />
@@ -102,6 +116,7 @@ export function App() {
             <Route path="/profil/*" element={<Profile />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
+          </div>
         </Suspense>
         {!hideNav && <Nav />}
       </div>

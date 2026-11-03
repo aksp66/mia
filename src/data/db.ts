@@ -35,6 +35,9 @@ export interface DayLogRow {
   date: CalendarDate;
   flow?: Flow;
   symptoms: SymptomCode[];
+  /** Niveau d'énergie et qualité du sommeil, de 1 (bas) à 5 (haut). */
+  energy?: number;
+  sleep?: number;
   note?: string;
   updatedAt: string;
 }

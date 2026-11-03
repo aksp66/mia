@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Banner, Button, Logo } from '../../ui/components';
+import { haptic } from '../../ui/haptics';
 import { vault } from '../../data/vault';
 
 export function LockScreen() {
@@ -28,6 +29,7 @@ export function LockScreen() {
     setError(false);
     const r = await vault.unlock(pin);
     setBusy(false);
+    if (r.ok) haptic();
     if (!r.ok) {
       const m = /^tooMany:(\d+)/.exec(r.error);
       setWaitSec(m ? Math.ceil(Number(m[1]) / 1000) : Math.ceil((await vault.lockoutRemaining()) / 1000));

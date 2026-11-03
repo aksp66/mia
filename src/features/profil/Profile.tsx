@@ -2,13 +2,32 @@ import { useState } from 'react';
 import { Link, Route, Routes, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Banner, Button, Chip, useToast } from '../../ui/components';
-import { useSetting, type Theme } from '../../app/hooks';
+import { useSetting, type Palette, type Theme } from '../../app/hooks';
 import { settingsRepo } from '../../data/repositories';
-import { APP_VERSION, buildExport, importData, parseExport, toCsv, type ImportMode, type MiaExport } from '../../data/exchange';
+import {
+  APP_VERSION,
+  MIN_PASSPHRASE,
+  buildExport,
+  decryptExport,
+  encryptExport,
+  importData,
+  isEncryptedExport,
+  parseExport,
+  toCsv,
+  type ImportMode,
+  type MiaExport,
+} from '../../data/exchange';
 import { today } from '../../domain/calendarDate';
 import { vault } from '../../data/vault';
 import { buildIcs, download } from './ics';
 import Security from './Security';
+
+const PALETTES: Array<[Palette, string]> = [
+  ['peony', '#d98ba8'],
+  ['lavender', '#b9a7ec'],
+  ['sand', '#e3b98a'],
+  ['mint', '#8fcfb9'],
+];
 
 function Back() {
   const { t } = useTranslation();
@@ -19,6 +38,7 @@ function Index() {
   const { t } = useTranslation();
   const [discreet, setDiscreet] = useSetting<boolean>('discreet', false);
   const [theme, setTheme] = useSetting<Theme>('theme', 'auto');
+  const [palette, setPalette] = useSetting<Palette>('palette', 'peony');
   return (
     <main className="screen">
       <h1>{t('profile.title')}</h1>
@@ -28,6 +48,15 @@ function Index() {
           {(['auto', 'light', 'dark'] as const).map((m) => (
             <Chip key={m} pressed={theme === m} onToggle={() => void setTheme(m)}>
               {t(`profile.theme${m === 'auto' ? 'Auto' : m === 'light' ? 'Light' : 'Dark'}`)}
+            </Chip>
+          ))}
+        </fieldset>
+        <fieldset className="chips">
+          <legend className="legend">{t('profile.palette')}</legend>
+          {PALETTES.map(([id, color]) => (
+            <Chip key={id} pressed={palette === id} onToggle={() => void setPalette(id)}>
+              <span className="swatch" style={{ background: color }} aria-hidden="true" />
+              {t(`profile.palette_${id}`)}
             </Chip>
           ))}
         </fieldset>
@@ -91,6 +120,10 @@ function DataScreen() {
   const [confirmReplace, setConfirmReplace] = useState(false);
   const [wiping, setWiping] = useState(false);
   const [word, setWord] = useState('');
+  const [pass, setPass] = useState('');
+  const [encText, setEncText] = useState<string | null>(null);
+  const [impPass, setImpPass] = useState('');
+  const [passError, setPassError] = useState('');
 
   async function exportAs(kind: 'json' | 'csv') {
     const e = await buildExport();
@@ -100,13 +133,41 @@ function DataScreen() {
     toast({ message: t('profile.exported') });
   }
 
+  async function exportEncrypted() {
+    setPassError('');
+    if (pass.length < MIN_PASSPHRASE) return setPassError(t('profile.passTooShort', { n: MIN_PASSPHRASE }));
+    const text = await encryptExport(JSON.stringify(await buildExport()), pass);
+    download(`mia-sauvegarde-${today()}.mia`, text, 'application/json');
+    await settingsRepo.set('lastExportAt', new Date().toISOString());
+    setPass('');
+    toast({ message: t('profile.exported') });
+  }
+
   async function pick(file: File | undefined) {
     setError(false);
     setPending(null);
+    setEncText(null);
+    setPassError('');
     if (!file) return;
-    const r = parseExport(await file.text());
+    const text = await file.text();
+    if (isEncryptedExport(text)) return setEncText(text);
+    const r = parseExport(text);
     if (r.ok) setPending(r.value);
     else setError(true);
+  }
+
+  async function decryptFile() {
+    if (!encText) return;
+    setPassError('');
+    const d = await decryptExport(encText, impPass);
+    const r = d.ok ? parseExport(d.value) : d;
+    setImpPass('');
+    if (r.ok) {
+      setPending(r.value);
+      setEncText(null);
+    } else {
+      setPassError(t('profile.wrongPass'));
+    }
   }
 
   async function run(mode: ImportMode) {
@@ -137,11 +198,31 @@ function DataScreen() {
         <Button onClick={() => exportAs('csv')}>{t('profile.exportCsv')}</Button>
       </section>
       <section className="card">
+        <h2>{t('profile.exportEnc')}</h2>
+        <p className="muted">{t('profile.exportEncHint')}</p>
+        <label className="field">
+          <span>{t('profile.passphrase')}</span>
+          <input className="input" type="password" autoComplete="new-password" value={pass} onChange={(e) => setPass(e.target.value)} />
+        </label>
+        {passError && !encText && <p className="error" role="alert">{passError}</p>}
+        <Button onClick={exportEncrypted}>{t('profile.exportEncBtn')}</Button>
+      </section>
+      <section className="card">
         <h2>{t('profile.import')}</h2>
         <label className="field">
           <span>{t('profile.importHint')}</span>
-          <input className="input" type="file" accept="application/json,.json" onChange={(e) => void pick(e.target.files?.[0])} />
+          <input className="input" type="file" accept="application/json,.json,.mia" onChange={(e) => void pick(e.target.files?.[0])} />
         </label>
+        {encText && (
+          <>
+            <label className="field">
+              <span>{t('profile.importPass')}</span>
+              <input className="input" type="password" autoComplete="off" value={impPass} onChange={(e) => setImpPass(e.target.value)} />
+            </label>
+            {passError && <p className="error" role="alert">{passError}</p>}
+            <Button variant="primary" disabled={!impPass} onClick={decryptFile}>{t('profile.decrypt')}</Button>
+          </>
+        )}
         {error && <Banner kind="error">{t('profile.importInvalid')}</Banner>}
         {pending && (
           <>

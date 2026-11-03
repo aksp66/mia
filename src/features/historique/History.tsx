@@ -2,13 +2,18 @@ import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../ui/components';
-import { fmtLong, usePeriods } from '../../app/hooks';
+import { fmtLong, useDayLogs, usePeriods } from '../../app/hooks';
 import { computeCycles, periodLength, recentValidLengths, sortPeriods } from '../../domain/cycle';
+import { computeInsights, type Insight } from '../../domain/insights';
 import { periodRepo } from '../../data/repositories';
 
 export default function HistoryScreen() {
   const { t } = useTranslation();
   const periods = usePeriods();
+  const logs = useDayLogs();
+  const insights = useMemo(() => (periods && logs ? computeInsights(periods, logs) : []), [periods, logs]);
+  const insightText = (i: Insight) =>
+    i.kind === 'topSymptom' ? t('insights.topSymptom', { symptom: t(`symptoms.${i.code}`).toLowerCase(), days: i.days }) : t(`insights.${i.kind}`, i);
 
   const data = useMemo(() => {
     if (!periods) return null;
@@ -29,6 +34,17 @@ export default function HistoryScreen() {
         <p>{t('history.empty')}</p>
       ) : (
         <>
+          {insights.length > 0 && (
+            <section className="card" aria-label={t('insights.title')}>
+              <h2>{t('insights.title')}</h2>
+              <ul className="list">
+                {insights.map((i) => (
+                  <li key={i.kind}>{insightText(i)}</li>
+                ))}
+              </ul>
+              <p className="muted">{t('insights.note')}</p>
+            </section>
+          )}
           <p className="card">{data.stats ? t('history.stats', data.stats) : t('history.statsNone')}</p>
           <ul className="list">
             {data.rows.map((p) => {

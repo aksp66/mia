@@ -2,11 +2,19 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Banner, Button, Chip, useToast } from '../../ui/components';
+import { haptic } from '../../ui/haptics';
 import { fmtLong, usePeriods } from '../../app/hooks';
 import { dayLogRepo, periodRepo, settingsRepo } from '../../data/repositories';
 import { FLOWS, SYMPTOM_CODES, type Flow, type SymptomCode } from '../../data/db';
 import { isValidCalendarDate, today, type CalendarDate } from '../../domain/calendarDate';
 import { validatePeriod, type ValidationIssue } from '../../domain/validation';
+
+const MOOD_EMOJI: Partial<Record<SymptomCode, string>> = {
+  moodCalm: '😌',
+  moodIrritable: '😠',
+  moodSad: '😢',
+  moodAnxious: '😟',
+};
 
 export default function Journal() {
   const { t } = useTranslation();
@@ -26,6 +34,8 @@ export default function Journal() {
   const [flow, setFlow] = useState<Flow | undefined>();
   const [symptoms, setSymptoms] = useState<SymptomCode[]>([]);
   const [note, setNote] = useState('');
+  const [energy, setEnergy] = useState<number | undefined>();
+  const [sleep, setSleep] = useState<number | undefined>();
   const [confirmed, setConfirmed] = useState(false);
   const [saveError, setSaveError] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -36,6 +46,8 @@ export default function Journal() {
       setFlow(log?.flow);
       setSymptoms(log?.symptoms ?? []);
       setNote(log?.note ?? '');
+      setEnergy(log?.energy);
+      setSleep(log?.sleep);
       if (existing) {
         setIsStart(true);
         setEnd(existing.endDate ?? '');
@@ -71,7 +83,7 @@ export default function Journal() {
 
   async function save() {
     setSaveError(false);
-    const results: Array<{ ok: boolean }> = [await dayLogRepo.save(date, { flow, symptoms, note })];
+    const results: Array<{ ok: boolean }> = [await dayLogRepo.save(date, { flow, symptoms, energy, sleep, note })];
     if (isStart && isValidCalendarDate(start)) {
       results.push(await periodRepo.save({ startDate: start, endDate }, existing?.startDate));
     } else if (existing) {
@@ -83,6 +95,7 @@ export default function Journal() {
     }
     void navigator.storage?.persist?.();
     void settingsRepo.setMeta('hasRecorded', true);
+    haptic();
     toast({ message: t('common.saved') });
     nav(-1);
   }
@@ -163,9 +176,29 @@ export default function Journal() {
         <legend className="legend">{t('journal.symptoms')} ({t('common.optional')})</legend>
         {SYMPTOM_CODES.map((c) => (
           <Chip key={c} pressed={symptoms.includes(c)} onToggle={() => toggleSymptom(c)}>
-            {t(`symptoms.${c}`)}
+            {MOOD_EMOJI[c] ? `${MOOD_EMOJI[c]} ` : ''}{t(`symptoms.${c}`)}
           </Chip>
         ))}
+      </fieldset>
+
+      <fieldset className="field chips" style={{ marginBottom: 16 }}>
+        <legend className="legend">{t('journal.energy')} ({t('common.optional')})</legend>
+        {[1, 2, 3, 4, 5].map((n) => (
+          <Chip key={n} pressed={energy === n} onToggle={() => setEnergy(energy === n ? undefined : n)}>
+            {n}
+          </Chip>
+        ))}
+        <small className="muted" style={{ width: '100%' }}>{t('journal.scaleHint')}</small>
+      </fieldset>
+
+      <fieldset className="field chips" style={{ marginBottom: 16 }}>
+        <legend className="legend">{t('journal.sleep')} ({t('common.optional')})</legend>
+        {[1, 2, 3, 4, 5].map((n) => (
+          <Chip key={n} pressed={sleep === n} onToggle={() => setSleep(sleep === n ? undefined : n)}>
+            {n}
+          </Chip>
+        ))}
+        <small className="muted" style={{ width: '100%' }}>{t('journal.scaleHint')}</small>
       </fieldset>
 
       <label className="field">

@@ -7,6 +7,7 @@ import { settingsRepo } from '../data/repositories';
 import type { CalendarDate } from '../domain/calendarDate';
 
 export type Theme = 'auto' | 'light' | 'dark';
+export type Palette = 'peony' | 'lavender' | 'sand' | 'mint';
 
 export const usePeriods = () => useLiveQuery(() => db.periods.orderBy('startDate').toArray(), []);
 export const useDayLogs = () => useLiveQuery(() => db.dayLogs.toArray(), []);
