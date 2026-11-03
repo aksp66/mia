@@ -30,10 +30,11 @@ Référence : Cahier des charges MIA v2.0 (02/11/2026). Dernière mise à jour :
 - [x] Constats automatiques dans l'Historique (cycles, durée des règles, symptôme le plus noté, énergie, sommeil)
 - [x] 4 palettes : Rose Pivoine, Nuit Lavande, Sable Chaud, Menthe (contrastes WCAG vérifiés)
 - [x] Sauvegarde chiffrée par mot de passe (fichier .mia, AES-GCM / PBKDF2) et import
+- [x] Avenant rédigé : `docs/cahier-des-charges-v2.1.md` (à valider par la maîtrise d'ouvrage)
 - [x] Build de production OK (JS initial ≈ 149 Ko gzip, < 200 Ko)
 
 ## Décisions d'extension à acter dans le cahier des charges (v2.1)
-Ajoutés à la demande du porteur de projet, hors cahier v2.0 : énergie et sommeil dans le Journal (champs facultatifs de `dayLogs`, sans changement de version du schéma), constats automatiques, palettes de couleurs, sauvegarde chiffrée par mot de passe, empreinte, thème clair/sombre. À consigner dans une version 2.1 du document.
+Ajoutés à la demande du porteur de projet, hors cahier v2.0 : énergie et sommeil dans le Journal (champs facultatifs de `dayLogs`, sans changement de version du schéma), constats automatiques, palettes de couleurs, sauvegarde chiffrée par mot de passe, empreinte, thème clair/sombre. Consignés dans `docs/cahier-des-charges-v2.1.md`.
 
 ### Idées reçues non retenues (contraires au cahier des charges v2.0)
 - Libellé de phase « ovulatoire » / jours de fertilité : interdit (sections 2, 6.5, 21).
@@ -60,6 +61,7 @@ Ajoutés à la demande du porteur de projet, hors cahier v2.0 : énergie et somm
 - [ ] Notice utilisatrice, rapport de tests, liste des limites connues
 
 ### Validation externe (hors code)
+- [ ] Valider et signer l'avenant v2.1 (maîtrise d'ouvrage)
 - [ ] Seuils de calcul à confirmer par le référent santé (section 6.2)
 - [ ] Examen juridique : loi togolaise 2019-014, RGPD si diffusion dans l'UE
 - [ ] Désigner le responsable de maintenance et le référent santé

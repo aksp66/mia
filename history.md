@@ -40,3 +40,4 @@ Journal chronologique des actions menées sur le projet.
 34. `src/domain/insights.ts` + tests ; encart « Ce que vos données montrent » dans l'Historique.
 35. Design : dégradés, verre, jauge `CycleRing`, navigation à icône pleine, animations, vibration, pastilles colorées du calendrier, 4 palettes (contrastes vérifiés par script), `--color-brand-strong` assombri (4,48 → 4,91 sur le dégradé).
 36. Sauvegarde chiffrée (`encryptExport` / `decryptExport`), écrans Données. 52 tests, lint, types, build OK.
+37. Rédaction de l'avenant `docs/cahier-des-charges-v2.1.md` : ajouts, propositions écartées (dont publicités), choix techniques, sécurité, contenus, tests T23 à T29, risques, validations.
