@@ -95,7 +95,7 @@ Compléments à la section 8 :
 | Polices | Inter, 4 graisses (400, 500, 600, 700) en WOFF2 latin, auto-hébergées (≈ 24 Ko chacune) ; politique CSP `font-src 'self'` |
 | Icônes | SVG et PNG (192, 512, maskable 512, 180 pour iOS), générés par `npm run icons` |
 | Routage | Adresses avec `#` (HashRouter) : fonctionne sur tout hébergement statique sans règle de repli serveur |
-| Hébergement | Chemin de base paramétrable (`BASE_PATH`) ; manifeste en chemins relatifs |
+| Hébergement | GitHub Pages sur dépôt public, déploiement automatique à chaque fusion dans `main`. Chemin de base paramétrable (`BASE_PATH`) ; manifeste en chemins relatifs |
 | Styles | Feuille CSS globale à jetons (écart avec les CSS Modules de la v2.0, conservé pour l'instant) |
 | Prettier | Désactivé volontairement (`.prettierignore`) |
 | Qualité | ESLint ; GitHub Actions : intégration continue (lint, tests avec couverture, build, audit) et déploiement |
@@ -156,7 +156,7 @@ Mesure de performance (section 16) : le JavaScript initial pèse environ 79 Ko c
 
 | Risque ou point | Impact | État / mesure |
 |---|---|---|
-| Hébergement : le dépôt est privé et GitHub Pages n'est pas disponible gratuitement pour un dépôt privé | Élevé (application non accessible sur téléphone) | **Décision à prendre** : dépôt public (GitHub Pages) ou dépôt privé avec Cloudflare Pages / Netlify |
+| Hébergement | Moyen | **Décision prise le 3 novembre 2026 : dépôt public, GitHub Pages** (HTTPS). Application en ligne : https://aksp66.github.io/mia/ . Conséquences : code source, historique Git et nom/adresse d'auteur des commits publics ; aucune donnée d'utilisatrice n'est concernée (stockage local). Aucun secret n'est présent dans le dépôt |
 | Données en clair pendant une session ouverte | Moyen | Limite connue (§ 5.3) ; correction par chiffrement permanent à planifier |
 | Empreinte non validée sur appareil réel | Moyen | Test T24 à faire sur au moins deux modèles Android ; prévoir le repli par PIN |
 | Articles non relus | Élevé | Publication publique bloquée jusqu'à relecture signée |
@@ -172,7 +172,7 @@ Mesure de performance (section 16) : le JavaScript initial pèse environ 79 Ko c
 2. Référent santé : relire et signer les 15 articles, confirmer les seuils (section 6.2) et les formulations des constats.
 3. Référent protection des données : examen du cadre juridique, y compris sauvegarde chiffrée et empreinte.
 4. Recette sur appareils réels : T19, T21, T24, T29 et tests de bout en bout.
-5. Décision d'hébergement (§ 8).
+5. ~~Décision d'hébergement~~ : prise (dépôt public, GitHub Pages) ; reste à vérifier l'installation sur téléphone (Chrome → « Installer l'application »).
 
 | Rôle | Nom | Date | Visa |
 |---|---|---|---|

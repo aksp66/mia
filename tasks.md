@@ -31,6 +31,8 @@ Référence : Cahier des charges MIA v2.0 (02/11/2026). Dernière mise à jour :
 - [x] 4 palettes : Rose Pivoine, Nuit Lavande, Sable Chaud, Menthe (contrastes WCAG vérifiés)
 - [x] Sauvegarde chiffrée par mot de passe (fichier .mia, AES-GCM / PBKDF2) et import
 - [x] Avenant rédigé : `docs/cahier-des-charges-v2.1.md` (à valider par la maîtrise d'ouvrage)
+- [x] Hébergement : dépôt public + GitHub Pages, en ligne sur https://aksp66.github.io/mia/ (déploiement à chaque fusion dans `main`)
+- [x] Avenant v2.1 exporté en PDF : `docs/cahier-des-charges-v2.1.pdf`
 - [x] Build de production OK (JS initial ≈ 149 Ko gzip, < 200 Ko)
 
 ## Décisions d'extension à acter dans le cahier des charges (v2.1)
@@ -49,6 +51,7 @@ Ajoutés à la demande du porteur de projet, hors cahier v2.0 : énergie et somm
 
 ### Écarts au cahier des charges
 - [ ] Passer les styles en CSS Modules (actuellement une feuille globale `src/ui/styles.css`)
+- [ ] Tester l'installation et l'empreinte sur téléphone réel (https://aksp66.github.io/mia/)
 - [ ] Décider : routage `#` (actuel, compatible GitHub Pages) ou routes classiques avec repli serveur
 - [ ] Husky (hooks de commit). Prettier volontairement désactivé (`.prettierignore`)
 
