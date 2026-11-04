@@ -83,7 +83,7 @@ Exigences : formulation descriptive ; mention permanente « ce ne sont pas des c
 
 ### 2.6 Refonte visuelle « soft pastel » (A13 à A18)
 
-**Statut : spécifiée le 4 novembre 2026, développement non commencé.** Elle remplace le style « dégradés et effet verre » de la version précédente (A7 et A10 restent valables pour le contenu, pas pour l'habillage).
+**Statut : spécifiée et développée le 4 novembre 2026 sur la branche `develop` ; les décisions du porteur sont consignées au § 2.6.7. Reste à valider sur téléphone réel (tests T31 à T34).** Elle remplace le style « dégradés et effet verre » de la version précédente (A7 et A10 restent valables pour le contenu, pas pour l'habillage).
 
 **Référence** : trois maquettes d'écran fournies par le porteur de projet (Accueil, Calendrier, Symptômes). Direction : minimalisme moderne, fonds clairs blanc cassé, cartes blanches aux coins très arrondis et aux ombres douces et diffuses, typographie ronde et chaleureuse, accents rose corail / framboise et lavande. Ce que MIA reprend est le style et l'organisation des écrans ; les fonctions, la logique métier, le stockage local, le chiffrement par PIN, l'empreinte et le mode discret ne changent pas.
 
@@ -140,9 +140,19 @@ Cartes successives de **puces à toucher** (sélection par un seul appui, coche 
 
 - Aucun changement du modèle de données ni du chiffrement. Seul ajout : le réglage facultatif du prénom (`settings`), en clair comme les autres réglages non sensibles ; à ranger dans le coffre chiffré si le référent protection des données l'exige.
 - **Mobile d'abord** : 360, 390 et 430 px ; marges latérales de 16 px.
-- **Tailwind CSS** : le brief le mentionne, mais la v2.0 (section 8) retient des variables CSS sans framework. **Décision à prendre** (§ 8). Recommandation : conserver les jetons CSS, qui donnent le même rendu sans nouvelle dépendance. Équivalences : `rounded-2xl` = 16 px, `rounded-3xl` = 24 px, `p-5` = 20 px, `shadow-pink-100/50` ≈ l'ombre ci-dessus. Tailwind produisant du CSS statique, il resterait compatible avec la politique de sécurité du contenu.
+- **Tailwind CSS** : le brief le mentionne, mais la v2.0 (section 8) retient des variables CSS sans framework. **Décision du 4 novembre 2026 : jetons CSS conservés, Tailwind non adopté.** Équivalences : `rounded-2xl` = 16 px, `rounded-3xl` = 24 px, `p-5` = 20 px, `shadow-pink-100/50` ≈ l'ombre ci-dessus. Tailwind produisant du CSS statique, il resterait compatible avec la politique de sécurité du contenu.
 - Animations douces conservées, désactivées si le téléphone demande de réduire les mouvements.
 
+#### 2.6.7 Décisions du porteur de projet (4 novembre 2026) et réalisation
+
+| Décision | Réponse | Réalisation |
+|---|---|---|
+| Tailwind ou jetons CSS | Jetons CSS | Jetons dans `src/ui/styles.css` ; test T30 sur les valeurs |
+| Prénom ou surnom facultatif | Accepté | Profil → champ facultatif ; réglage `firstName` ; salutation « Bonjour, [prénom] » ; masqué en mode discret |
+| Nouvelle navigation (4 onglets + « + », Profil en en-tête) | Acceptée | Barre flottante, bouton central ouvrant un panneau (règles / symptôme), icône Profil en en-tête |
+| Palette par défaut « Rose Poudré » | Acceptée | Palette `soft` par défaut ; Rose Pivoine devient un choix |
+
+Réalisé : jetons et contrastes, police Plus Jakarta Sans (4 graisses, environ 12 Ko chacune), cartes sans flou d'arrière-plan, barre flottante, en-tête, carte « Jour des règles / du cycle » avec jauge, mini-histogramme (à partir de deux cycles valides), tuiles d'accès rapide, calendrier à deux mois empilés avec « Modifier les dates » (les règles en cours sans date de fin sont marquées jusqu'à aujourd'hui, 7 jours au plus), Journal en cartes de puces avec formes de flux abstraites et émojis, bande de sélection des 14 derniers jours. La fonction pure `periodDay` détermine le « jour des règles ». Non fait : défilement continu sur plusieurs mois (deux mois sont affichés et la navigation avance d'un mois) ; la bande de sélection ne remonte qu'à 14 jours (l'adresse du Journal accepte toute date).
 ## 3. Propositions écartées
 
 | Proposition | Décision | Motif |
@@ -154,6 +164,7 @@ Cartes successives de **puces à toucher** (sélection par un seul appui, coche 
 | Pictogrammes de gouttes pour le flux (maquette de référence) | Adaptée | Section 10.5 de la v2.0 : aucune goutte ni symbole explicite ; formes abstraites à la place |
 | Sélecteur rotatif des jours (maquette de référence) | Adaptée | Difficile à rendre accessible (lecteur d'écran, clavier) ; remplacé par une bande horizontale de sélection |
 | Salutation personnalisée « Bonjour, [Nom] » obligatoire | Adaptée | La v2.0 ne collecte aucun nom (sections 5.3 et 13.3) ; prénom ou surnom facultatif, local, masqué en mode discret |
+| Tableau « favorable aux rapports / attention / danger de grossesse » (méthode du calendrier, image fournie le 4 novembre 2026), à intégrer et à rendre téléchargeable | Écartée | Contraire aux sections 2, 6.5 et 21 de la v2.0 (aucune période « sans risque », aucune fertilité, MIA n'est pas une méthode contraceptive) ; un tableau de dates « sans danger » calculées sur le seul premier jour des règles est une méthode peu fiable qui expose à une grossesse non désirée, en particulier pour des cycles irréguliers et des adolescentes. Alternative : article d'information sur les méthodes de contraception et la consultation d'un professionnel de santé (à rédiger et faire relire) |
 | Publicités, y compris non visibles | Écartée définitivement | Une publicité non visible gonfle artificiellement les affichages (fraude publicitaire, motif de suspension par les régies) ; contraire à la section 13 (aucun traceur ni outil tiers, CSP bloquante, public comprenant des mineures). Le modèle de lancement reste gratuit, sans publicité (section 1) |
 
 ## 4. Choix techniques arrêtés
@@ -227,10 +238,10 @@ Cinq essais, puis blocage de 30 secondes, doublé à chaque échec supplémentai
 | T27 | Contrastes des 4 palettes en clair et en sombre (4,5:1) | Vérifié par calcul ; à intégrer à la recette |
 | T28 | Énergie et sommeil : saisie, export, import | **À écrire** |
 | T29 | Thème clair / sombre / automatique et palettes appliqués sur tous les écrans, y compris le verrou | **À valider visuellement** |
-| T30 | Contrastes de la palette soft (§ 2.6.1) : texte 4,5:1, composants 3:1, corail et lavande jamais en texte | Calcul fait le 4 novembre 2026 ; à intégrer à la recette |
-| T31 | Navigation : 4 destinations, bouton « + » et icône Profil atteignables au clavier et au lecteur d'écran, cibles de 44 px | À écrire |
-| T32 | Mode discret : carte de statut, histogramme et salutation personnalisée masqués | À écrire |
-| T33 | Revue visuelle à 360, 390 et 430 px par rapport aux maquettes de référence | À réaliser |
+| T30 | Contrastes de la palette soft (§ 2.6.1) : texte 4,5:1, composants 3:1, corail et lavande jamais en texte | Automatisé (`tests/contrast.test.ts`), passe ; vérifie aussi que les valeurs sont celles de la feuille de styles |
+| T31 | Navigation : 4 destinations, bouton « + » et icône Profil atteignables au clavier et au lecteur d'écran, cibles de 44 px | Réalisée ; à vérifier au clavier et avec TalkBack |
+| T32 | Mode discret : carte de statut, histogramme et salutation personnalisée masqués | Réalisé ; test automatisé à écrire |
+| T33 | Revue visuelle à 360, 390 et 430 px par rapport aux maquettes de référence | Contrôle fait le 4 novembre 2026 à 390 px (clair et sombre, captures d'un navigateur de bureau) ; à faire à 360 et 430 px et sur téléphone |
 | T34 | Performance après refonte : CSS et polices (4 graisses) dans un budget à fixer, LCP et INP inchangés | À mesurer |
 
 Restent à réaliser, comme dans la v2.0 : tests de bout en bout (Playwright, dont hors ligne et inspection du trafic réseau T10), accessibilité (T19, axe-core et TalkBack), performance (T21, Lighthouse), tests de composants, essais sur au moins trois appareils Android réels.
@@ -249,7 +260,8 @@ Mesure de performance (section 16) : le JavaScript initial pèse environ 79 Ko c
 | Constats automatiques mal interprétés | Moyen | Formulation descriptive, mention « pas des conseils médicaux » ; relecture des formulations par le référent santé |
 | Contrastes insuffisants des couleurs demandées (corail 2,74:1, lavande 1,96:1 sur blanc) | Moyen | Variantes foncées pour le texte et les boutons (§ 2.6.1) ; contrôle T30 |
 | Prénom facultatif dans l'application (donnée personnelle) | Moyen | Local, facultatif, masqué en mode discret ; à soumettre au référent protection des données |
-| Barre de navigation modifiée (Profil dans l'en-tête, bouton « + ») | Faible | Tests T31 ; vérifier la découvrabilité du Profil avec des utilisatrices |
+| Barre de navigation modifiée (Profil dans l'en-tête, bouton « + ») | Faible | Acceptée par le porteur ; tests T31 ; vérifier la découvrabilité du Profil avec des utilisatrices |
+| Demande récurrente de dates « sans danger » (méthode du calendrier) | Élevé | Refusée (§ 3) ; prévoir un article d'information sur la contraception, relu par le référent santé, et un message clair dans « Comment c'est calculé ? » |
 | Examen juridique (loi togolaise 2019-014, RGPD) | Élevé | Requis avant diffusion publique (section 13.3) ; la sauvegarde chiffrée et l'export sont à inclure dans l'examen |
 | Perte de données si le navigateur est vidé | Élevé | Atténué : sauvegarde chiffrée, export, rappel d'export (> 60 jours) |
 | Référents non désignés (maintenance, santé, protection des données) | Moyen | À désigner avant la diffusion |
@@ -260,7 +272,7 @@ Mesure de performance (section 16) : le JavaScript initial pèse environ 79 Ko c
 2. Référent santé : relire et signer les 33 articles, confirmer les seuils (section 6.2) et les formulations des constats.
 3. Référent protection des données : examen du cadre juridique, y compris sauvegarde chiffrée et empreinte.
 4. Recette sur appareils réels : T19, T21, T24, T29 et tests de bout en bout.
-5. Décisions liées à la refonte visuelle : Tailwind ou jetons CSS ; prénom facultatif ; nouvelle navigation ; palette « Rose Poudré » par défaut (§ 2.6).
+5. Refonte visuelle : décisions prises le 4 novembre 2026 (§ 2.6.7) ; reste la recette sur téléphone (T31 à T34).
 6. ~~Décision d'hébergement~~ : prise (dépôt public, GitHub Pages) ; reste à vérifier l'installation sur téléphone (Chrome → « Installer l'application »).
 
 | Rôle | Nom | Date | Visa |

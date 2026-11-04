@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Banner, Button, Chip, useToast } from '../../ui/components';
@@ -6,17 +6,55 @@ import { haptic } from '../../ui/haptics';
 import { fmtLong, usePeriods } from '../../app/hooks';
 import { dayLogRepo, periodRepo, settingsRepo } from '../../data/repositories';
 import { FLOWS, SYMPTOM_CODES, type Flow, type SymptomCode } from '../../data/db';
-import { isValidCalendarDate, today, type CalendarDate } from '../../domain/calendarDate';
+import { addDays, isValidCalendarDate, today, type CalendarDate } from '../../domain/calendarDate';
 import { validatePeriod, type ValidationIssue } from '../../domain/validation';
 
-const MOOD_EMOJI: Partial<Record<SymptomCode, string>> = {
+const EMOJI: Record<SymptomCode, string> = {
+  cramps: '😖',
+  headache: '🤕',
+  fatigue: '🥱',
+  bloating: '🎈',
+  breastTenderness: '🌸',
+  acne: '🧴',
+  nausea: '🤢',
+  backPain: '💢',
+  sleep: '🌙',
+  cravings: '🍫',
+  discharge: '🫧',
   moodCalm: '😌',
   moodIrritable: '😠',
   moodSad: '😢',
   moodAnxious: '😟',
 };
+const MOOD_CODES = SYMPTOM_CODES.filter((c) => c.startsWith('mood'));
+const BODY_CODES = SYMPTOM_CODES.filter((c) => !c.startsWith('mood'));
+/** Pictogrammes de flux : cercles de taille croissante (aucune goutte, section 10.5). */
+const FLOW_SIZE: Record<Flow, number> = { spotting: 6, light: 10, medium: 14, heavy: 18 };
+const DOW_LETTER = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
 
-export default function Journal() {
+function DayStrip({ date, now }: { date: CalendarDate; now: CalendarDate }) {
+  const nav = useNavigate();
+  const { t } = useTranslation();
+  const current = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    current.current?.scrollIntoView?.({ inline: 'center', block: 'nearest' });
+  }, [date]);
+  const first = date < addDays(now, -13) ? date : addDays(now, -13);
+  const days: CalendarDate[] = [];
+  for (let d = first; d <= now; d = addDays(d, 1)) days.push(d);
+  return (
+    <div className="daystrip" role="group" aria-label={t('journal.dayStrip')}>
+      {days.map((d) => (
+        <button key={d} ref={d === date ? current : undefined} type="button" aria-current={d === date ? 'date' : undefined} aria-label={fmtLong(d)} onClick={() => nav(`/journal/${d}`, { replace: true })}>
+          <span aria-hidden="true">{DOW_LETTER[new Date(Number(d.slice(0, 4)), Number(d.slice(5, 7)) - 1, Number(d.slice(8, 10))).getDay()]}</span>
+          <strong aria-hidden="true">{Number(d.slice(8, 10))}</strong>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function JournalForm() {
   const { t } = useTranslation();
   const nav = useNavigate();
   const toast = useToast();
@@ -117,6 +155,7 @@ export default function Journal() {
   return (
     <main className="screen screen--full">
       <h1>{t('journal.title', { date: fmtLong(date) })}</h1>
+      <DayStrip date={date} now={now} />
 
       <label className="switch">
         <span>{t('journal.periodStart')}</span>
@@ -163,49 +202,69 @@ export default function Journal() {
         </>
       )}
 
-      <fieldset className="field chips" style={{ marginBottom: 16 }}>
-        <legend className="legend">{t('journal.flow')} ({t('common.optional')})</legend>
-        {FLOWS.map((f) => (
-          <Chip key={f} pressed={flow === f} onToggle={() => setFlow(flow === f ? undefined : f)}>
-            {t(`journal.flows.${f}`)}
-          </Chip>
-        ))}
-      </fieldset>
+      <section className="card">
+        <fieldset className="chips">
+          <legend className="legend">{t('journal.flow')} ({t('common.optional')})</legend>
+          {FLOWS.map((f) => (
+            <Chip key={f} pressed={flow === f} onToggle={() => setFlow(flow === f ? undefined : f)}>
+              <span className="flow-shape" style={{ width: FLOW_SIZE[f], height: FLOW_SIZE[f] }} aria-hidden="true" />
+              {t(`journal.flows.${f}`)}
+            </Chip>
+          ))}
+        </fieldset>
+      </section>
 
-      <fieldset className="field chips" style={{ marginBottom: 16 }}>
-        <legend className="legend">{t('journal.symptoms')} ({t('common.optional')})</legend>
-        {SYMPTOM_CODES.map((c) => (
-          <Chip key={c} pressed={symptoms.includes(c)} onToggle={() => toggleSymptom(c)}>
-            {MOOD_EMOJI[c] ? `${MOOD_EMOJI[c]} ` : ''}{t(`symptoms.${c}`)}
-          </Chip>
-        ))}
-      </fieldset>
+      <section className="card">
+        <fieldset className="chips">
+          <legend className="legend">{t('journal.mood')} ({t('common.optional')})</legend>
+          {MOOD_CODES.map((c) => (
+            <Chip key={c} pressed={symptoms.includes(c)} onToggle={() => toggleSymptom(c)}>
+              <span className="chip-emoji" aria-hidden="true">{EMOJI[c]}</span>
+              {t(`symptoms.${c}`)}
+            </Chip>
+          ))}
+        </fieldset>
+      </section>
 
-      <fieldset className="field chips" style={{ marginBottom: 16 }}>
-        <legend className="legend">{t('journal.energy')} ({t('common.optional')})</legend>
-        {[1, 2, 3, 4, 5].map((n) => (
-          <Chip key={n} pressed={energy === n} onToggle={() => setEnergy(energy === n ? undefined : n)}>
-            {n}
-          </Chip>
-        ))}
-        <small className="muted" style={{ width: '100%' }}>{t('journal.scaleHint')}</small>
-      </fieldset>
+      <section className="card">
+        <fieldset className="chips">
+          <legend className="legend">{t('journal.symptoms')} ({t('common.optional')})</legend>
+          {BODY_CODES.map((c) => (
+            <Chip key={c} pressed={symptoms.includes(c)} onToggle={() => toggleSymptom(c)}>
+              <span className="chip-emoji" aria-hidden="true">{EMOJI[c]}</span>
+              {t(`symptoms.${c}`)}
+            </Chip>
+          ))}
+        </fieldset>
+      </section>
 
-      <fieldset className="field chips" style={{ marginBottom: 16 }}>
-        <legend className="legend">{t('journal.sleep')} ({t('common.optional')})</legend>
-        {[1, 2, 3, 4, 5].map((n) => (
-          <Chip key={n} pressed={sleep === n} onToggle={() => setSleep(sleep === n ? undefined : n)}>
-            {n}
-          </Chip>
-        ))}
-        <small className="muted" style={{ width: '100%' }}>{t('journal.scaleHint')}</small>
-      </fieldset>
+      <section className="card">
+        <fieldset className="chips">
+          <legend className="legend">{t('journal.energy')} ({t('common.optional')})</legend>
+          {[1, 2, 3, 4, 5].map((n) => (
+            <Chip key={n} pressed={energy === n} onToggle={() => setEnergy(energy === n ? undefined : n)}>
+              {n}
+            </Chip>
+          ))}
+        </fieldset>
+        <fieldset className="chips" style={{ marginTop: 16 }}>
+          <legend className="legend">{t('journal.sleep')} ({t('common.optional')})</legend>
+          {[1, 2, 3, 4, 5].map((n) => (
+            <Chip key={n} pressed={sleep === n} onToggle={() => setSleep(sleep === n ? undefined : n)}>
+              {n}
+            </Chip>
+          ))}
+        </fieldset>
+        <small className="muted">{t('journal.scaleHint')}</small>
+      </section>
 
-      <label className="field">
-        <span>{t('journal.note')} ({t('common.optional')})</span>
-        <textarea className="input" value={note} onChange={(e) => setNote(e.target.value)} maxLength={2000} />
-        <small className="muted">{t('journal.notePrivate')}</small>
-      </label>
+      <section className="card">
+        <label className="field" style={{ marginBottom: 0 }}>
+          <span>{t('journal.note')} ({t('common.optional')})</span>
+          <textarea className="input" value={note} onChange={(e) => setNote(e.target.value)} maxLength={2000} />
+          <small className="muted">{t('journal.notePrivate')}</small>
+        </label>
+      </section>
 
       {saveError && (
         <Banner kind="error">
@@ -228,4 +287,10 @@ export default function Journal() {
       )}
     </main>
   );
+}
+
+/** Le formulaire est recréé à chaque changement de jour (bande de sélection). */
+export default function Journal() {
+  const { date } = useParams();
+  return <JournalForm key={date} />;
 }

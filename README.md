@@ -10,7 +10,7 @@ Document de référence : *Cahier des charges MIA, version 2.0*.
 
 Version 1 en cours de développement. Spécification : cahier des charges v2.0 (PDF) et avenant [docs/cahier-des-charges-v2.1.md](docs/cahier-des-charges-v2.1.md). Le suivi détaillé est dans [tasks.md](tasks.md) et l'historique des actions dans [history.md](history.md).
 
-Fonctionnalités disponibles : accueil initial, Accueil, Calendrier, Journal, Historique, Apprendre, Profil, export JSON/CSV, import (fusion ou remplacement), suppression totale, rappels (message dans l'application et fichier `.ics`), mode discret, thème clair/sombre/automatique et 4 palettes de couleurs, humeur/énergie/sommeil, constats automatiques, sauvegarde chiffrée par mot de passe, verrouillage par code PIN avec chiffrement local et déverrouillage par empreinte (si l'appareil le permet).
+Fonctionnalités disponibles : accueil initial, Accueil, Calendrier, Journal, Historique, Apprendre, Profil, export JSON/CSV, import (fusion ou remplacement), suppression totale, rappels (message dans l'application et fichier `.ics`), mode discret, thème clair/sombre/automatique et 5 palettes de couleurs (Rose Poudré par défaut), design « soft pastel », humeur/énergie/sommeil, constats automatiques, sauvegarde chiffrée par mot de passe, verrouillage par code PIN avec chiffrement local et déverrouillage par empreinte (si l'appareil le permet).
 
 Les articles éducatifs (33 articles, 8 thèmes, recherche) sont rédigés pour MIA à partir d'informations de santé publique, avec leurs sources. Ils sont affichés « en attente de relecture » : ils doivent être relus et signés par une personne compétente en santé avant une diffusion publique.
 

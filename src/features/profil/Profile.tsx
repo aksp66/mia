@@ -23,6 +23,7 @@ import { buildIcs, download } from './ics';
 import Security from './Security';
 
 const PALETTES: Array<[Palette, string]> = [
+  ['soft', '#e27d9f'],
   ['peony', '#d98ba8'],
   ['lavender', '#b9a7ec'],
   ['sand', '#e3b98a'],
@@ -38,10 +39,30 @@ function Index() {
   const { t } = useTranslation();
   const [discreet, setDiscreet] = useSetting<boolean>('discreet', false);
   const [theme, setTheme] = useSetting<Theme>('theme', 'auto');
-  const [palette, setPalette] = useSetting<Palette>('palette', 'peony');
+  const [firstName, setFirstName] = useSetting<string>('firstName', '');
+  const [nameDraft, setNameDraft] = useState<string | null>(null);
+  const [palette, setPalette] = useSetting<Palette>('palette', 'soft');
   return (
     <main className="screen">
+      <Link to="/">← {t('nav.home')}</Link>
       <h1>{t('profile.title')}</h1>
+      <section className="card">
+        <label className="field" style={{ marginBottom: 0 }}>
+          <span>{t('profile.firstName')}</span>
+          <input
+            className="input"
+            maxLength={30}
+            autoComplete="off"
+            value={nameDraft ?? firstName ?? ''}
+            onChange={(e) => setNameDraft(e.target.value)}
+            onBlur={() => {
+              if (nameDraft !== null) void setFirstName(nameDraft.trim());
+              setNameDraft(null);
+            }}
+          />
+          <small className="muted">{t('profile.firstNameHint')}</small>
+        </label>
+      </section>
       <section className="card">
         <fieldset className="chips" style={{ marginBottom: 16 }}>
           <legend className="legend">{t('profile.appearance')}</legend>

@@ -46,14 +46,13 @@ Ajoutés à la demande du porteur de projet, hors cahier v2.0 : énergie et somm
 
 ## À faire
 
-### Refonte visuelle « soft pastel » (spécifiée dans l'avenant v2.1, § 2.6 — développement non commencé)
-- [ ] Décisions du porteur : Tailwind ou jetons CSS (recommandé : jetons) ; prénom facultatif ; nouvelle navigation (4 onglets + « + », Profil en en-tête) ; palette « Rose Poudré » par défaut
-- [ ] Jetons : fond #FAF8F7, cartes blanches 24 px, ombre douce, corail #E27D9F (surfaces), framboise #A8326E (texte et boutons), lavande #C3B1E1 / texte #6B4FA0 ; retirer le flou d'arrière-plan
-- [ ] Police Plus Jakarta Sans auto-hébergée (remplace Inter)
-- [ ] Barre flottante avec bouton « + » (panneau : règles / symptôme) ; icône Profil dans l'en-tête
-- [ ] Accueil : carte « Jour des règles / du cycle », jauge pastel, mini-histogramme des cycles, tuiles rapides, salutation facultative
-- [ ] Calendrier : mois empilés, bouton « Modifier les dates » ; Journal : cartes de puces, formes abstraites pour le flux, bande de sélection du jour
-- [ ] Tests T30 à T34 (contrastes, navigation, mode discret, captures 360/390/430 px, performance)
+### Refonte visuelle « soft pastel » (avenant v2.1, § 2.6) — développée le 4 novembre 2026
+- [x] Décisions du porteur : jetons CSS (pas de Tailwind), prénom facultatif, nouvelle navigation, palette « Rose Poudré » par défaut
+- [x] Jetons, police Plus Jakarta Sans, cartes sans flou, barre flottante + bouton « + », en-tête avec Profil, Accueil (jauge, histogramme, tuiles, salutation), calendrier 2 mois, Journal en cartes avec bande de jours, formes de flux abstraites
+- [x] Test T30 automatisé (contrastes) ; contrôle visuel à 390 px, clair et sombre
+- [ ] Revue visuelle à 360 et 430 px et sur téléphone réel ; test automatisé du mode discret (T32) ; clavier et TalkBack (T31) ; mesure de performance (T34)
+- [ ] Calendrier : défilement continu sur plusieurs mois (deux mois affichés pour l'instant)
+- [ ] Article d'information sur la contraception et les limites de la méthode du calendrier (à faire relire)
 
 ### Fonctionnel
 - [ ] Relecture et signature des 33 articles par un référent santé (renseigner `reviewer` dans `src/content/articles.ts` **et** `src/content/articles-more.ts`)

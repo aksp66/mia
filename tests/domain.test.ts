@@ -7,7 +7,7 @@ import {
   parseCalendarDate as D,
   today,
 } from '../src/domain/calendarDate';
-import { averagePeriodLength, computeCycles, cycleDay } from '../src/domain/cycle';
+import { averagePeriodLength, computeCycles, cycleDay, periodDay } from '../src/domain/cycle';
 import { estimatedDays, predict, summarize } from '../src/domain/prediction';
 import { validatePeriod } from '../src/domain/validation';
 
@@ -157,5 +157,26 @@ describe('validation (T16)', () => {
   it('cycle atypique à confirmer', () => {
     expect(validatePeriod({ startDate: D('2026-10-14') }, starts('2026-10-03'), t).map((i) => i.code)).toContain('atypicalCycle');
     expect(validatePeriod({ startDate: D('2026-10-31') }, starts('2026-10-03'), t)).toEqual([]);
+  });
+});
+
+describe('jour des règles', () => {
+  it('aucune période : null', () => {
+    expect(periodDay([], D('2026-11-04'))).toBeNull();
+  });
+  it('sans date de fin : en cours pendant 7 jours au plus', () => {
+    const p = starts('2026-11-01');
+    expect(periodDay(p, D('2026-11-01'))).toBe(1);
+    expect(periodDay(p, D('2026-11-04'))).toBe(4);
+    expect(periodDay(p, D('2026-11-07'))).toBe(7);
+    expect(periodDay(p, D('2026-11-08'))).toBeNull();
+  });
+  it('avec date de fin : en cours jusqu\'à cette date', () => {
+    const p = [{ startDate: D('2026-11-01'), endDate: D('2026-11-05') }];
+    expect(periodDay(p, D('2026-11-05'))).toBe(5);
+    expect(periodDay(p, D('2026-11-06'))).toBeNull();
+  });
+  it('date du jour avant le début : null', () => {
+    expect(periodDay(starts('2026-11-10'), D('2026-11-04'))).toBeNull();
   });
 });
