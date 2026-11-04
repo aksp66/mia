@@ -1,5 +1,5 @@
 export const fr = {
-  nav: { home: 'Accueil', calendar: 'Calendrier', history: 'Historique', learn: 'Apprendre', profile: 'Profil' },
+  nav: { home: 'Accueil', calendar: 'Calendrier', history: 'Historique', learn: 'Apprendre', profile: 'Profil', add: 'Ajouter', addTitle: 'Que souhaitez-vous faire ?' },
   common: {
     save: 'Enregistrer',
     cancel: 'Annuler',
@@ -27,6 +27,13 @@ export const fr = {
   home: {
     cycleDay: 'Jour {{n}} du cycle',
     dayWord: 'Jour',
+    greeting: 'Bonjour',
+    greetingName: 'Bonjour, {{name}}',
+    periodDay: 'Jour des règles {{n}}',
+    editPeriod: 'Modifier la période',
+    cyclesTitle: 'Durée de vos derniers cycles',
+    cyclesUnit: 'En jours, du plus ancien au plus récent.',
+    cyclesAria: 'Durée des derniers cycles en jours : {{list}}',
     inDays_one: 'Règles estimées dans {{count}} jour',
     inDays_other: 'Règles estimées dans {{count}} jours',
     expectedToday: 'Règles estimées aujourd\'hui',
@@ -47,6 +54,7 @@ export const fr = {
     exportReminder: 'Pensez à exporter vos données par précaution.',
   },
   calendar: {
+    editDates: 'Modifier les dates',
     today: 'Aujourd\'hui',
     prev: 'Mois précédent',
     next: 'Mois suivant',
@@ -85,6 +93,8 @@ export const fr = {
     deleted: 'Entrée supprimée.',
     undo: 'Annuler',
     energy: 'Énergie',
+    mood: 'Humeur',
+    dayStrip: 'Choisir le jour',
     sleep: 'Sommeil',
     scaleHint: '1 = bas, 5 = élevé',
     flows: { spotting: 'Traces', light: 'Léger', medium: 'Moyen', heavy: 'Abondant' },
@@ -151,6 +161,9 @@ export const fr = {
     privacy: 'Confidentialité',
     appearance: 'Apparence',
     palette: 'Couleurs',
+    palette_soft: 'Rose Poudré',
+    firstName: 'Prénom ou surnom (facultatif)',
+    firstNameHint: "Reste sur ce téléphone. N'apparaît pas en mode discret.",
     palette_peony: 'Rose Pivoine',
     palette_lavender: 'Nuit Lavande',
     palette_sand: 'Sable Chaud',

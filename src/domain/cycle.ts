@@ -61,6 +61,17 @@ export function recentValidLengths(cycles: readonly Cycle[]): number[] {
     .map((c) => c.length);
 }
 
+/** Jour des règles (1 = premier jour) si la dernière période est en cours, sinon null. */
+export function periodDay(periods: readonly PeriodInput[], todayDate: CalendarDate): number | null {
+  const sorted = sortPeriods(periods);
+  const last = sorted[sorted.length - 1];
+  if (!last) return null;
+  const n = daysBetween(last.startDate, todayDate) + 1;
+  if (n < 1) return null;
+  if (last.endDate) return todayDate <= last.endDate ? n : null;
+  return n <= C.openPeriodDays ? n : null;
+}
+
 export function averagePeriodLength(periods: readonly PeriodInput[]): number | null {
   const lens = periods.map(periodLength).filter((n): n is number => n !== undefined);
   if (lens.length < C.minEndDatesForPeriodLength) return null;

@@ -1,11 +1,13 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Flower2, Sparkles } from 'lucide-react';
 import { Button, Banner, Sheet } from '../../ui/components';
 import { fmtLong, fmtShort, usePeriods, useSetting } from '../../app/hooks';
-import { today } from '../../domain/calendarDate';
+import { daysBetween, today } from '../../domain/calendarDate';
+import { computeCycles, periodDay, recentValidLengths } from '../../domain/cycle';
 import { summarize } from '../../domain/prediction';
-import { daysBetween } from '../../domain/calendarDate';
+import { CycleBars } from './CycleBars';
 import { CycleRing } from './CycleRing';
 
 export function Home() {
@@ -13,23 +15,32 @@ export function Home() {
   const nav = useNavigate();
   const periods = usePeriods();
   const [discreet] = useSetting<boolean>('discreet', false);
+  const [firstName] = useSetting<string>('firstName', '');
   const [remind] = useSetting<boolean>('remindersEnabled', false);
   const [lastExport] = useSetting<string>('lastExportAt', '');
   const [revealed, setRevealed] = useState(false);
   const [explain, setExplain] = useState(false);
   const todayStr = today();
   const summary = useMemo(() => (periods ? summarize(periods, todayStr) : null), [periods, todayStr]);
+  const lengths = useMemo(() => (periods ? recentValidLengths(computeCycles(periods)) : []), [periods]);
+  const inPeriod = useMemo(() => (periods ? periodDay(periods, todayStr) : null), [periods, todayStr]);
 
   if (!summary || discreet === undefined) return null;
   const hidden = discreet && !revealed;
   const p = summary.prediction;
   const needsExport =
     (periods?.length ?? 0) >= 3 && (!lastExport || daysBetween(lastExport.slice(0, 10) as never, todayStr) > 60);
+  // En mode discret, le prénom n'est jamais affiché.
+  const greeting = !discreet && firstName?.trim() ? t('home.greetingName', { name: firstName.trim() }) : t('home.greeting');
 
   return (
     <main className="screen">
-      <h1>MIA</h1>
+      <header className="greeting">
+        <h1>{greeting}</h1>
+        <p className="muted">{fmtLong(todayStr)}</p>
+      </header>
       {remind && <Banner>{t('home.reminder')}</Banner>}
+
       <section className="card" aria-label="Résumé du cycle">
         {hidden ? (
           <>
@@ -43,11 +54,14 @@ export function Home() {
             ) : (
               <>
                 {summary.cycleDay ? (
-                  <CycleRing
-                    day={summary.cycleDay}
-                    length={p.kind === 'Estimation' || p.kind === 'Plage' ? p.average : null}
-                    daysUntil={p.kind === 'Estimation' ? daysBetween(todayStr, p.date) : null}
-                  />
+                  <>
+                    <h2 className="status-title">{inPeriod ? t('home.periodDay', { n: inPeriod }) : t('home.cycleDay', { n: summary.cycleDay })}</h2>
+                    <CycleRing
+                      day={summary.cycleDay}
+                      length={p.kind === 'Estimation' || p.kind === 'Plage' ? p.average : null}
+                      daysUntil={p.kind === 'Estimation' ? daysBetween(todayStr, p.date) : null}
+                    />
+                  </>
                 ) : (
                   <p className="big">{t('home.cycleDayUnknown')}</p>
                 )}
@@ -68,17 +82,35 @@ export function Home() {
                     {t('common.howCalculated')}
                   </Button>
                 )}
+                {summary.lastStart && <Button onClick={() => nav(`/journal/${summary.lastStart}`)}>{t('home.editPeriod')}</Button>}
               </>
             )}
             {discreet && <Button variant="link" onClick={() => setRevealed(false)}>{t('home.hide')}</Button>}
           </>
         )}
       </section>
+
+      {!hidden && lengths.length >= 2 && (
+        <section className="card" aria-label={t('home.cyclesTitle')}>
+          <h2>{t('home.cyclesTitle')}</h2>
+          <CycleBars lengths={lengths} />
+          <p className="muted">{t('home.cyclesUnit')}</p>
+        </section>
+      )}
+
       {needsExport && <Banner>{t('home.exportReminder')}</Banner>}
-      <Button variant="primary" onClick={() => nav(`/journal/${todayStr}`)}>
-        {t('home.recordPeriod')}
-      </Button>
-      <Button onClick={() => nav(`/journal/${todayStr}?mode=symptoms`)}>{t('home.noteSymptom')}</Button>
+
+      <div className="tiles">
+        <button type="button" className="tile tile--mint" onClick={() => nav(`/journal/${todayStr}`)}>
+          <Flower2 size={28} strokeWidth={1.75} aria-hidden="true" />
+          {t('home.recordPeriod')}
+        </button>
+        <button type="button" className="tile tile--lavender" onClick={() => nav(`/journal/${todayStr}?mode=symptoms`)}>
+          <Sparkles size={28} strokeWidth={1.75} aria-hidden="true" />
+          {t('home.noteSymptom')}
+        </button>
+      </div>
+
       <p className="muted" style={{ textAlign: 'center' }}>{t('common.storedLocally')}</p>
       {explain && (
         <Sheet title={t('estimate.title')} onClose={() => setExplain(false)} closeLabel={t('common.close')}>

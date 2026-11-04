@@ -11,4 +11,6 @@ export const CYCLE_CONFIG = {
   variableSpread: 20,
   maxCycleDay: 90,
   minEndDatesForPeriodLength: 3,
+  /** Sans date de fin, les règles sont considérées en cours pendant ce nombre de jours au plus. */
+  openPeriodDays: 7,
 } as const;

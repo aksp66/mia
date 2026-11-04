@@ -46,6 +46,14 @@ Ajoutés à la demande du porteur de projet, hors cahier v2.0 : énergie et somm
 
 ## À faire
 
+### Refonte visuelle « soft pastel » (avenant v2.1, § 2.6) — développée le 4 novembre 2026
+- [x] Décisions du porteur : jetons CSS (pas de Tailwind), prénom facultatif, nouvelle navigation, palette « Rose Poudré » par défaut
+- [x] Jetons, police Plus Jakarta Sans, cartes sans flou, barre flottante + bouton « + », en-tête avec Profil, Accueil (jauge, histogramme, tuiles, salutation), calendrier 2 mois, Journal en cartes avec bande de jours, formes de flux abstraites
+- [x] Test T30 automatisé (contrastes) ; contrôle visuel à 390 px, clair et sombre
+- [ ] Revue visuelle à 360 et 430 px et sur téléphone réel ; test automatisé du mode discret (T32) ; clavier et TalkBack (T31) ; mesure de performance (T34)
+- [ ] Calendrier : défilement continu sur plusieurs mois (deux mois affichés pour l'instant)
+- [ ] Article d'information sur la contraception et les limites de la méthode du calendrier (à faire relire)
+
 ### Fonctionnel
 - [ ] Relecture et signature des 33 articles par un référent santé (renseigner `reviewer` dans `src/content/articles.ts` **et** `src/content/articles-more.ts`)
 
