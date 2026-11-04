@@ -51,7 +51,8 @@ Ajoutés à la demande du porteur de projet, hors cahier v2.0 : énergie et somm
 - [x] Jetons, police Plus Jakarta Sans, cartes sans flou, barre flottante + bouton « + », en-tête avec Profil, Accueil (jauge, histogramme, tuiles, salutation), calendrier 2 mois, Journal en cartes avec bande de jours, formes de flux abstraites
 - [x] Test T30 automatisé (contrastes) ; contrôle visuel à 390 px, clair et sombre
 - [ ] Revue visuelle à 360 et 430 px et sur téléphone réel ; test automatisé du mode discret (T32) ; clavier et TalkBack (T31) ; mesure de performance (T34)
-- [ ] Calendrier : défilement continu sur plusieurs mois (deux mois affichés pour l'instant)
+- [x] Calendrier à défilement continu (mois courant à l'ouverture, boutons « mois précédents / suivants »)
+- [x] Journal : le changement de jour conserve le mode, aucune règle créée par erreur, alerte de modifications non enregistrées (tests Testing Library)
 - [ ] Article d'information sur la contraception et les limites de la méthode du calendrier (à faire relire)
 
 ### Fonctionnel

@@ -1048,3 +1048,15 @@ textarea.input {
 .cal-head h1 {
   text-transform: none;
 }
+
+/* Calendrier à défilement continu */
+.cal-head {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--color-bg);
+  padding: var(--sp-2) 0;
+}
+.cal-card {
+  scroll-margin-top: 64px;
+}

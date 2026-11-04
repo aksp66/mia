@@ -130,11 +130,11 @@ Règles : un état (règles, estimation, sélection, symptôme) n'est jamais sig
 
 #### 2.6.4 Calendrier
 
-Mois empilés défilables, avec retour rapide à aujourd'hui et légende permanente. Distinctions conservées : règles enregistrées = disque corail bordé de framboise ; période estimée = cercle en pointillés ; aujourd'hui = anneau ; symptômes = pastilles pastel par groupe. Un bouton « Modifier les dates » ouvre le Journal. L'annonce de chaque jour par les lecteurs d'écran est inchangée.
+**Défilement continu** : les mois sont empilés et défilent verticalement ; l'écran s'ouvre sur le mois courant (6 mois précédents au moins, davantage si des règles plus anciennes sont enregistrées, jusqu'à 60 ; 12 mois suivants) ; des boutons ajoutent 6 mois avant ou après ; « Aujourd'hui » ramène au mois courant ; en-tête et légende restent accessibles. Distinctions conservées : règles enregistrées = disque corail bordé de framboise ; période estimée = cercle en pointillés ; aujourd'hui = anneau ; symptômes = pastilles pastel par groupe. Un bouton « Modifier les dates » ouvre le Journal. L'annonce de chaque jour par les lecteurs d'écran est inchangée.
 
 #### 2.6.5 Écran Symptômes (Journal)
 
-Cartes successives de **puces à toucher** (sélection par un seul appui, coche visible en plus de la couleur) : Flux (traces, léger, moyen, abondant), Humeur (avec émojis), Symptômes physiques (avec émojis), Énergie, Sommeil, note privée. Les pictogrammes de flux sont des **formes abstraites** (cercles de taille croissante) et non des gouttes, conformément à la section 10.5 de la v2.0. En tête, une **bande horizontale de sélection du jour** remplace le sélecteur rotatif de la maquette, jugé trop difficile à rendre accessible.
+Cartes successives de **puces à toucher** (sélection par un seul appui, coche visible en plus de la couleur) : Flux (traces, léger, moyen, abondant), Humeur (avec émojis), Symptômes physiques (avec émojis), Énergie, Sommeil, note privée. Le début des règles n'est proposé d'office que depuis « Enregistrer mes règles » ou pour une entrée existante : ouvrir un jour pour noter un symptôme ne crée jamais de règles. Le choix d'un autre jour dans la bande conserve ce mode ; si le jour affiché a des modifications non enregistrées, un message propose d'enregistrer et changer de jour, d'abandonner ou de rester. Les pictogrammes de flux sont des **formes abstraites** (cercles de taille croissante) et non des gouttes, conformément à la section 10.5 de la v2.0. En tête, une **bande horizontale de sélection du jour** remplace le sélecteur rotatif de la maquette, jugé trop difficile à rendre accessible.
 
 #### 2.6.6 Contraintes techniques
 
@@ -152,7 +152,7 @@ Cartes successives de **puces à toucher** (sélection par un seul appui, coche 
 | Nouvelle navigation (4 onglets + « + », Profil en en-tête) | Acceptée | Barre flottante, bouton central ouvrant un panneau (règles / symptôme), icône Profil en en-tête |
 | Palette par défaut « Rose Poudré » | Acceptée | Palette `soft` par défaut ; Rose Pivoine devient un choix |
 
-Réalisé : jetons et contrastes, police Plus Jakarta Sans (4 graisses, environ 12 Ko chacune), cartes sans flou d'arrière-plan, barre flottante, en-tête, carte « Jour des règles / du cycle » avec jauge, mini-histogramme (à partir de deux cycles valides), tuiles d'accès rapide, calendrier à deux mois empilés avec « Modifier les dates » (les règles en cours sans date de fin sont marquées jusqu'à aujourd'hui, 7 jours au plus), Journal en cartes de puces avec formes de flux abstraites et émojis, bande de sélection des 14 derniers jours. La fonction pure `periodDay` détermine le « jour des règles ». Non fait : défilement continu sur plusieurs mois (deux mois sont affichés et la navigation avance d'un mois) ; la bande de sélection ne remonte qu'à 14 jours (l'adresse du Journal accepte toute date).
+Réalisé : jetons et contrastes, police Plus Jakarta Sans (4 graisses, environ 12 Ko chacune), cartes sans flou d'arrière-plan, barre flottante, en-tête, carte « Jour des règles / du cycle » avec jauge, mini-histogramme (à partir de deux cycles valides), tuiles d'accès rapide, calendrier à deux mois empilés avec « Modifier les dates » (les règles en cours sans date de fin sont marquées jusqu'à aujourd'hui, 7 jours au plus), Journal en cartes de puces avec formes de flux abstraites et émojis, bande de sélection des 14 derniers jours. La fonction pure `periodDay` détermine le « jour des règles ». Le défilement continu du calendrier est réalisé (§ 2.6.4). La bande de sélection ne remonte qu'à 14 jours (l'adresse du Journal accepte toute date).
 ## 3. Propositions écartées
 
 | Proposition | Décision | Motif |
@@ -240,6 +240,7 @@ Cinq essais, puis blocage de 30 secondes, doublé à chaque échec supplémentai
 | T29 | Thème clair / sombre / automatique et palettes appliqués sur tous les écrans, y compris le verrou | **À valider visuellement** |
 | T30 | Contrastes de la palette soft (§ 2.6.1) : texte 4,5:1, composants 3:1, corail et lavande jamais en texte | Automatisé (`tests/contrast.test.ts`), passe ; vérifie aussi que les valeurs sont celles de la feuille de styles |
 | T31 | Navigation : 4 destinations, bouton « + » et icône Profil atteignables au clavier et au lecteur d'écran, cibles de 44 px | Réalisée ; à vérifier au clavier et avec TalkBack |
+| T35 | Journal : le changement de jour conserve le mode, ne crée pas de règles et prévient des modifications non enregistrées ; calendrier à défilement continu | Automatisé (`tests/journal.test.tsx`), passe |
 | T32 | Mode discret : carte de statut, histogramme et salutation personnalisée masqués | Réalisé ; test automatisé à écrire |
 | T33 | Revue visuelle à 360, 390 et 430 px par rapport aux maquettes de référence | Contrôle fait le 4 novembre 2026 à 390 px (clair et sombre, captures d'un navigateur de bureau) ; à faire à 360 et 430 px et sur téléphone |
 | T34 | Performance après refonte : CSS et polices (4 graisses) dans un budget à fixer, LCP et INP inchangés | À mesurer |

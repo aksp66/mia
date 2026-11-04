@@ -30,10 +30,15 @@ const MOOD_CODES = SYMPTOM_CODES.filter((c) => c.startsWith('mood'));
 const BODY_CODES = SYMPTOM_CODES.filter((c) => !c.startsWith('mood'));
 /** Pictogrammes de flux : cercles de taille croissante (aucune goutte, section 10.5). */
 const FLOW_SIZE: Record<Flow, number> = { spotting: 6, light: 10, medium: 14, heavy: 18 };
+/** État du formulaire sous forme comparable (détection des modifications non enregistrées). */
+const formState = (f: { isStart: boolean; start: string; end: string; flow?: string; symptoms: readonly string[]; energy?: number; sleep?: number; note: string }) => ({
+  ...f,
+  symptoms: [...f.symptoms].sort(),
+});
+
 const DOW_LETTER = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
 
-function DayStrip({ date, now }: { date: CalendarDate; now: CalendarDate }) {
-  const nav = useNavigate();
+function DayStrip({ date, now, onSelect }: { date: CalendarDate; now: CalendarDate; onSelect: (d: CalendarDate) => void }) {
   const { t } = useTranslation();
   const current = useRef<HTMLButtonElement>(null);
   useEffect(() => {
@@ -45,7 +50,7 @@ function DayStrip({ date, now }: { date: CalendarDate; now: CalendarDate }) {
   return (
     <div className="daystrip" role="group" aria-label={t('journal.dayStrip')}>
       {days.map((d) => (
-        <button key={d} ref={d === date ? current : undefined} type="button" aria-current={d === date ? 'date' : undefined} aria-label={fmtLong(d)} onClick={() => nav(`/journal/${d}`, { replace: true })}>
+        <button key={d} ref={d === date ? current : undefined} type="button" aria-current={d === date ? 'date' : undefined} aria-label={fmtLong(d)} onClick={() => onSelect(d)}>
           <span aria-hidden="true">{DOW_LETTER[new Date(Number(d.slice(0, 4)), Number(d.slice(5, 7)) - 1, Number(d.slice(8, 10))).getDay()]}</span>
           <strong aria-hidden="true">{Number(d.slice(8, 10))}</strong>
         </button>
@@ -66,7 +71,8 @@ function JournalForm() {
   const date = isValidCalendarDate(param) ? param : now;
   const existing = periods?.find((p) => p.startDate === date);
   const [loaded, setLoaded] = useState(false);
-  const [isStart, setIsStart] = useState(search.get('mode') !== 'symptoms');
+  // Le début des règles n'est proposé d'office que depuis « Enregistrer mes règles » (?mode=period) ou pour une entrée existante.
+  const [isStart, setIsStart] = useState(search.get('mode') === 'period');
   const [start, setStart] = useState<CalendarDate>(date);
   const [end, setEnd] = useState<string>('');
   const [flow, setFlow] = useState<Flow | undefined>();
@@ -77,6 +83,8 @@ function JournalForm() {
   const [confirmed, setConfirmed] = useState(false);
   const [saveError, setSaveError] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [pendingDay, setPendingDay] = useState<CalendarDate | null>(null);
+  const initial = useRef<string | null>(null);
 
   useEffect(() => {
     if (loaded || !periods) return;
@@ -90,9 +98,33 @@ function JournalForm() {
         setIsStart(true);
         setEnd(existing.endDate ?? '');
       }
+      initial.current = JSON.stringify(formState({
+        isStart: Boolean(existing) || search.get('mode') === 'period',
+        start: date,
+        end: existing?.endDate ?? '',
+        flow: log?.flow,
+        symptoms: log?.symptoms ?? [],
+        energy: log?.energy,
+        sleep: log?.sleep,
+        note: log?.note ?? '',
+      }));
       setLoaded(true);
     });
-  }, [loaded, periods, date, existing]);
+  }, [loaded, periods, date, existing, search]);
+
+  const dirty = loaded && initial.current !== JSON.stringify(formState({ isStart, start, end, flow, symptoms, energy, sleep, note }));
+
+  /** Change de jour en conservant les paramètres d'adresse (notamment le mode). */
+  const go = (d: CalendarDate) => {
+    setPendingDay(null);
+    const q = search.toString();
+    nav(`/journal/${d}${q ? `?${q}` : ''}`, { replace: true });
+  };
+  const selectDay = (d: CalendarDate) => {
+    if (d === date) return;
+    if (dirty) setPendingDay(d);
+    else go(d);
+  };
 
   const endDate = end && isValidCalendarDate(end) ? (end as CalendarDate) : undefined;
   const issues: ValidationIssue[] = useMemo(
@@ -119,7 +151,7 @@ function JournalForm() {
 
   const toggleSymptom = (c: SymptomCode) => setSymptoms((s) => (s.includes(c) ? s.filter((x) => x !== c) : [...s, c]));
 
-  async function save() {
+  async function save(after?: () => void) {
     setSaveError(false);
     const results: Array<{ ok: boolean }> = [await dayLogRepo.save(date, { flow, symptoms, energy, sleep, note })];
     if (isStart && isValidCalendarDate(start)) {
@@ -135,7 +167,8 @@ function JournalForm() {
     void settingsRepo.setMeta('hasRecorded', true);
     haptic();
     toast({ message: t('common.saved') });
-    nav(-1);
+    if (after) after();
+    else nav(-1);
   }
 
   async function remove() {
@@ -155,7 +188,20 @@ function JournalForm() {
   return (
     <main className="screen screen--full">
       <h1>{t('journal.title', { date: fmtLong(date) })}</h1>
-      <DayStrip date={date} now={now} />
+      <DayStrip date={date} now={now} onSelect={selectDay} />
+
+      {pendingDay && (
+        <Banner kind="warn">
+          <p>{t('journal.unsaved')}</p>
+          <Button variant="primary" disabled={blocked} onClick={() => void save(() => go(pendingDay))}>
+            {t('journal.saveAndSwitch')}
+          </Button>
+          <Button variant="danger" onClick={() => go(pendingDay)}>
+            {t('journal.discardAndSwitch')}
+          </Button>
+          <Button onClick={() => setPendingDay(null)}>{t('journal.stay')}</Button>
+        </Banner>
+      )}
 
       <label className="switch">
         <span>{t('journal.periodStart')}</span>
@@ -268,11 +314,11 @@ function JournalForm() {
 
       {saveError && (
         <Banner kind="error">
-          {t('journal.saveFailed')} <button className="btn btn--link" onClick={save}>{t('journal.retry')}</button>
+          {t('journal.saveFailed')} <button className="btn btn--link" onClick={() => void save()}>{t('journal.retry')}</button>
         </Banner>
       )}
 
-      <Button variant="primary" disabled={blocked} onClick={save}>{t('common.save')}</Button>
+      <Button variant="primary" disabled={blocked} onClick={() => void save()}>{t('common.save')}</Button>
       <Button onClick={() => nav(-1)}>{t('common.cancel')}</Button>
 
       {existing && !confirmDelete && (
