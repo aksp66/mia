@@ -46,6 +46,15 @@ Ajoutés à la demande du porteur de projet, hors cahier v2.0 : énergie et somm
 
 ## À faire
 
+### Refonte visuelle « soft pastel » (spécifiée dans l'avenant v2.1, § 2.6 — développement non commencé)
+- [ ] Décisions du porteur : Tailwind ou jetons CSS (recommandé : jetons) ; prénom facultatif ; nouvelle navigation (4 onglets + « + », Profil en en-tête) ; palette « Rose Poudré » par défaut
+- [ ] Jetons : fond #FAF8F7, cartes blanches 24 px, ombre douce, corail #E27D9F (surfaces), framboise #A8326E (texte et boutons), lavande #C3B1E1 / texte #6B4FA0 ; retirer le flou d'arrière-plan
+- [ ] Police Plus Jakarta Sans auto-hébergée (remplace Inter)
+- [ ] Barre flottante avec bouton « + » (panneau : règles / symptôme) ; icône Profil dans l'en-tête
+- [ ] Accueil : carte « Jour des règles / du cycle », jauge pastel, mini-histogramme des cycles, tuiles rapides, salutation facultative
+- [ ] Calendrier : mois empilés, bouton « Modifier les dates » ; Journal : cartes de puces, formes abstraites pour le flux, bande de sélection du jour
+- [ ] Tests T30 à T34 (contrastes, navigation, mode discret, captures 360/390/430 px, performance)
+
 ### Fonctionnel
 - [ ] Relecture et signature des 33 articles par un référent santé (renseigner `reviewer` dans `src/content/articles.ts` **et** `src/content/articles-more.ts`)
 
