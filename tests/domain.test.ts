@@ -180,3 +180,17 @@ describe('jour des règles', () => {
     expect(periodDay(starts('2026-11-10'), D('2026-11-04'))).toBeNull();
   });
 });
+
+describe('jour des règles et jour du cycle', () => {
+  it('sont toujours égaux quand les règles sont en cours (propriété)', () => {
+    fc.assert(
+      fc.property(fc.integer({ min: 0, max: 40 }), fc.boolean(), (offset, withEnd) => {
+        const start = D('2026-06-01');
+        const todayDate = addDays(start, offset);
+        const p = [{ startDate: start, endDate: withEnd ? addDays(start, 4) : undefined }];
+        const pd = periodDay(p, todayDate);
+        if (pd !== null) expect(pd).toBe(cycleDay(start, todayDate));
+      }),
+    );
+  });
+});

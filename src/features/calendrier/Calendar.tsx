@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
@@ -30,6 +30,12 @@ const shift = ({ y, m }: YearMonth, n: number): YearMonth => {
   const idx = y * 12 + (m - 1) + n;
   return { y: Math.floor(idx / 12), m: (idx % 12) + 1 };
 };
+const monthsBetween = (a: YearMonth, b: YearMonth) => (b.y - a.y) * 12 + (b.m - a.m);
+
+const MIN_BEFORE = 6;
+const MAX_BEFORE = 60;
+const AFTER = 12;
+const STEP = 6;
 
 export default function Calendar() {
   const { t } = useTranslation();
@@ -38,9 +44,11 @@ export default function Calendar() {
   const logs = useDayLogs();
   const now = today();
   const thisMonth: YearMonth = { y: Number(now.slice(0, 4)), m: Number(now.slice(5, 7)) };
-  const [ym, setYm] = useState<YearMonth>(thisMonth);
   const [selected, setSelected] = useState<CalendarDate | null>(null);
-  const touchX = useRef<number | null>(null);
+  const [moreBefore, setMoreBefore] = useState(0);
+  const [moreAfter, setMoreAfter] = useState(0);
+  const currentRef = useRef<HTMLElement | null>(null);
+  const placed = useRef(false);
 
   const recorded = useMemo(() => {
     const s = new Set<CalendarDate>();
@@ -59,7 +67,24 @@ export default function Calendar() {
   );
   const symptomsByDay = useMemo(() => new Map((logs ?? []).filter((l) => l.symptoms.length).map((l) => [l.date, l.symptoms])), [logs]);
 
-  const move = (n: number) => setYm((cur) => shift(cur, n));
+  // Fenêtre de mois : de quoi couvrir la première période enregistrée, extensible par boutons.
+  const earliest = periods?.[0]?.startDate;
+  const needed = earliest ? monthsBetween({ y: Number(earliest.slice(0, 4)), m: Number(earliest.slice(5, 7)) }, thisMonth) : 0;
+  const before = Math.min(MAX_BEFORE, Math.max(MIN_BEFORE, needed)) + moreBefore;
+  const after = AFTER + moreAfter;
+  const months = Array.from({ length: before + after + 1 }, (_, i) => shift(thisMonth, i - before));
+
+  const scrollToCurrent = (smooth: boolean) => {
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    currentRef.current?.scrollIntoView?.({ block: 'start', behavior: smooth && !reduce ? 'smooth' : 'auto' });
+  };
+  // Arrivée sur l'écran : on se place sur le mois courant, une fois les données chargées.
+  useEffect(() => {
+    if (!periods || placed.current) return;
+    placed.current = true;
+    scrollToCurrent(false);
+  }, [periods]);
+
   const monthTitle = (v: YearMonth) => format(new Date(v.y, v.m - 1, 1), 'LLLL yyyy', { locale: frLocale });
 
   function label(d: CalendarDate) {
@@ -74,8 +99,14 @@ export default function Calendar() {
     const first = fromParts(v.y, v.m, 1);
     const daysInMonth = new Date(Date.UTC(v.y, v.m, 0)).getUTCDate();
     const offset = (new Date(Date.UTC(v.y, v.m - 1, 1)).getUTCDay() + 6) % 7;
+    const isCurrent = v.y === thisMonth.y && v.m === thisMonth.m;
     return (
-      <section key={`${v.y}-${v.m}`} className="card" aria-label={monthTitle(v)}>
+      <section
+        key={`${v.y}-${v.m}`}
+        ref={isCurrent ? currentRef : undefined}
+        className="card cal-card"
+        aria-label={monthTitle(v)}
+      >
         <h2 className="cal-month">{monthTitle(v)}</h2>
         <div className="cal-grid" role="grid" aria-label={monthTitle(v)}>
           {DOW.map((d, i) => (
@@ -112,32 +143,20 @@ export default function Calendar() {
   return (
     <main className="screen">
       <div className="cal-head">
-        <button className="icon-btn" aria-label={t('calendar.prev')} onClick={() => move(-1)}>‹</button>
-        <h1 aria-live="polite">{t('nav.calendar')}</h1>
-        <button className="icon-btn" aria-label={t('calendar.next')} onClick={() => move(1)}>›</button>
+        <h1>{t('nav.calendar')}</h1>
+        <Button variant="link" onClick={() => scrollToCurrent(true)}>
+          {t('calendar.today')}
+        </Button>
       </div>
-      <div
-        onTouchStart={(e) => (touchX.current = e.touches[0].clientX)}
-        onTouchEnd={(e) => {
-          if (touchX.current === null) return;
-          const dx = e.changedTouches[0].clientX - touchX.current;
-          if (Math.abs(dx) > 60) move(dx < 0 ? 1 : -1);
-          touchX.current = null;
-        }}
-        style={{ touchAction: 'pan-y' }}
-      >
-        {renderMonth(ym)}
-        {renderMonth(shift(ym, 1))}
-      </div>
-      <Button variant="link" onClick={() => setYm(thisMonth)}>
-        {t('calendar.today')}
-      </Button>
       <ul className="legend-list" aria-label="Légende">
         <li><span className="cal-day cal-day--period" aria-hidden="true" />{t('calendar.legendPeriod')}</li>
         <li><span className="cal-day cal-day--estimated" aria-hidden="true" />{t('calendar.legendEstimated')}</li>
         <li><span className="cal-day cal-day--today" aria-hidden="true" />{t('calendar.legendToday')}</li>
         <li><span className="cal-dots" aria-hidden="true"><i className="dot--pain" /><i className="dot--energy" /><i className="dot--mood" /></span>{t('calendar.legendSymptom')}</li>
       </ul>
+      <Button onClick={() => setMoreBefore((n) => n + STEP)}>{t('calendar.earlier')}</Button>
+      {months.map(renderMonth)}
+      <Button onClick={() => setMoreAfter((n) => n + STEP)}>{t('calendar.later')}</Button>
       {selected && (
         <Sheet title={fmtLong(selected)} onClose={() => setSelected(null)} closeLabel={t('common.close')}>
           <p>{label(selected).replace(`${fmtLong(selected)}, `, '').replace(fmtLong(selected), '') || '—'}</p>

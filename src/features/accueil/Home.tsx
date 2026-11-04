@@ -55,6 +55,7 @@ export function Home() {
               <>
                 {summary.cycleDay ? (
                   <>
+                    {/* Pendant les règles, « jour des règles » et « jour du cycle » sont la même valeur (compte depuis le dernier début). */}
                     <h2 className="status-title">{inPeriod ? t('home.periodDay', { n: inPeriod }) : t('home.cycleDay', { n: summary.cycleDay })}</h2>
                     <CycleRing
                       day={summary.cycleDay}
@@ -101,7 +102,7 @@ export function Home() {
       {needsExport && <Banner>{t('home.exportReminder')}</Banner>}
 
       <div className="tiles">
-        <button type="button" className="tile tile--mint" onClick={() => nav(`/journal/${todayStr}`)}>
+        <button type="button" className="tile tile--mint" onClick={() => nav(`/journal/${todayStr}?mode=period`)}>
           <Flower2 size={28} strokeWidth={1.75} aria-hidden="true" />
           {t('home.recordPeriod')}
         </button>

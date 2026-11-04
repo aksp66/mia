@@ -81,7 +81,7 @@ function Nav() {
       </nav>
       {adding && (
         <Sheet title={t('nav.addTitle')} onClose={() => setAdding(false)} closeLabel={t('common.close')}>
-          <Button variant="primary" onClick={() => go(`/journal/${today()}`)}>{t('home.recordPeriod')}</Button>
+          <Button variant="primary" onClick={() => go(`/journal/${today()}?mode=period`)}>{t('home.recordPeriod')}</Button>
           <Button onClick={() => go(`/journal/${today()}?mode=symptoms`)}>{t('home.noteSymptom')}</Button>
         </Sheet>
       )}
